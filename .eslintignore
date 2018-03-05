@@ -1,6 +1,11 @@
+# do not lint/format external source files since we wan't to be able to diff against upstream later
+src/OpenWPM-adapted/*
+src/data-leak/*
+openwpm.*.js
 # do not lint/format generated artifacts
 dist/
 package-lock.json
+src/background.js
 # makes sure that eslintrc.js gets linted/formatted
 !.eslintrc.js
 # do not lint/format bundled util libraries
