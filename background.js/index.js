@@ -6,10 +6,17 @@ import { BrowserActionDebugButton } from "./BrowserActionDebugButton";
 
 async function runOnce() {
   // ensure we have configured shieldUtils and are supposed to run our feature
+  /*
   await browser.shieldUtils.bootstrapStudy();
 
   // get study variation
   const { variation } = await browser.shieldUtils.info();
+  */
+
+  const variation = {
+    name: "foo",
+    weight: 1,
+  };
 
   // a button for debugging (tmp)
   new BrowserActionDebugButton(variation);

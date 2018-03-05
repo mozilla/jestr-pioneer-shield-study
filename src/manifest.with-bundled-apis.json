@@ -1,0 +1,48 @@
+{
+  "name": "Data Leak Pioneer Shield Study",
+  "version": "0.1.0",
+  "manifest_version": 2,
+  "applications": {
+    "gecko": {
+      "id": "dataleak-pioneer-shield-study@shield.mozilla.org",
+      "strict_min_version": "59.0"
+    }
+  },
+  "experiment_apis": {
+    "feature": {
+      "schema": "./privileged/feature/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "./privileged/feature/api.js",
+        "paths": [["feature"]]
+      }
+    },
+    "shieldUtils": {
+      "schema": "./privileged/shieldUtils/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "./privileged/shieldUtils/api.js",
+        "paths": [["shieldUtils"]]
+      }
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/openwpm.content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "icons": {
+    "256": "icons/shield-icon.svg"
+  },
+  "browser_action": {
+    "browser_style": true,
+    "default_icon": "icons/shield-icon.svg",
+    "default_title": "Data Leak Pioneer Shield Study Debug (Click and check Browser Console)"
+  }
+}
