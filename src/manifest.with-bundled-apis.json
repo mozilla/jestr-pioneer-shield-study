@@ -1,31 +1,42 @@
 {
   "name": "Data Leak Pioneer Shield Study",
+  "description": "__MSG_extensionDescription__",
   "version": "0.1.0",
   "manifest_version": 2,
   "applications": {
     "gecko": {
       "id": "dataleak-pioneer-shield-study@shield.mozilla.org",
-      "strict_min_version": "59.0"
+      "strict_min_version": "61.0a1"
     }
   },
+  "default_locale": "en-US",
   "experiment_apis": {
-    "feature": {
-      "schema": "./privileged/feature/schema.json",
+    "introductionNotificationBar": {
+      "schema": "./privileged/introductionNotificationBar/schema.json",
       "parent": {
         "scopes": ["addon_parent"],
-        "script": "./privileged/feature/api.js",
-        "paths": [["feature"]]
+        "script": "./privileged/introductionNotificationBar/api.js",
+        "paths": [["introductionNotificationBar"]]
       }
     },
-    "shieldUtils": {
-      "schema": "./privileged/shieldUtils/schema.json",
+    "prefs": {
+      "schema": "./privileged/prefs/schema.json",
       "parent": {
         "scopes": ["addon_parent"],
-        "script": "./privileged/shieldUtils/api.js",
-        "paths": [["shieldUtils"]]
+        "script": "./privileged/prefs/api.js",
+        "paths": [["prefs"]]
+      }
+    },
+    "study": {
+      "schema": "./privileged/study/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "./privileged/study/api.js",
+        "paths": [["study"]]
       }
     }
   },
+  "permissions": ["storage", "alarms"],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -35,14 +46,14 @@
     }
   ],
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["studySetup.js", "Feature.js", "background.js"]
   },
   "icons": {
-    "256": "icons/shield-icon.svg"
+    "48": "icons/shield-icon.svg"
   },
   "browser_action": {
     "browser_style": true,
     "default_icon": "icons/shield-icon.svg",
-    "default_title": "Data Leak Pioneer Shield Study Debug (Click and check Browser Console)"
+    "default_title": "__MSG_buttonTitle__"
   }
 }

@@ -1,42 +1,24 @@
 {
-  "name": "Button Icon Preference - Shield Study Example",
+  "name": "Data Leak Pioneer Shield Study",
   "description": "__MSG_extensionDescription__",
-  "version": "2.0.0",
+  "version": "0.1.0",
   "manifest_version": 2,
   "applications": {
     "gecko": {
-      "id": "button-icon-preference@shield.mozilla.org",
+      "id": "dataleak-pioneer-shield-study@shield.mozilla.org",
       "strict_min_version": "61.0a1"
     }
   },
   "default_locale": "en-US",
-  "experiment_apis": {
-    "introductionNotificationBar": {
-      "schema": "./privileged/introductionNotificationBar/schema.json",
-      "parent": {
-        "scopes": ["addon_parent"],
-        "script": "./privileged/introductionNotificationBar/api.js",
-        "paths": [["introductionNotificationBar"]]
-      }
-    },
-    "prefs": {
-      "schema": "./privileged/prefs/schema.json",
-      "parent": {
-        "scopes": ["addon_parent"],
-        "script": "./privileged/prefs/api.js",
-        "paths": [["prefs"]]
-      }
-    },
-    "study": {
-      "schema": "./privileged/study/schema.json",
-      "parent": {
-        "scopes": ["addon_parent"],
-        "script": "./privileged/study/api.js",
-        "paths": [["study"]]
-      }
-    }
-  },
   "permissions": ["storage", "alarms"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/openwpm.content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
   "background": {
     "scripts": ["studySetup.js", "Feature.js", "background.js"]
   },
@@ -45,7 +27,7 @@
   },
   "browser_action": {
     "browser_style": true,
-    "default_icon": "icons/isolatedcorndog.svg",
+    "default_icon": "icons/shield-icon.svg",
     "default_title": "__MSG_buttonTitle__"
   }
 }
