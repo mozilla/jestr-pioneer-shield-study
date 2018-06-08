@@ -80,8 +80,8 @@
     "sign": "echo 'TBD, see: https://bugzilla.mozilla.org/show_bug.cgi?id=1407757'",
     "start": "web-ext run --no-reload",
     "test": "npm-run-all test:*",
-    "test:karma": "NODE_ENV=test karma start",
     "test:func": "FIREFOX_BINARY=${FIREFOX_BINARY:-firefoxdeveloperedition} ADDON_ZIP=./dist/data_leak_pioneer_shield_study-0.1.0.zip mocha test/functional/ --bail",
+    "test:karma": "NODE_ENV=test karma start",
     "watch": "concurrently 'webpack --watch' 'web-ext run'"
   }
 }
