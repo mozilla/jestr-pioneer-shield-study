@@ -5,7 +5,7 @@ openwpm.*.js
 # do not lint/format generated artifacts
 dist/
 package-lock.json
-src/background.js
+src/feature.js
 # makes sure that eslintrc.js gets linted/formatted
 !.eslintrc.js
 # do not lint/format bundled util libraries
