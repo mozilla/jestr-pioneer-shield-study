@@ -28,7 +28,7 @@ class Feature {
      tab.
      */
     function handleMessage(request, sender) {
-      if (sender.url != browser.runtime.getURL("/devtools/panel/panel.html")) {
+      if (sender.url !== browser.runtime.getURL("/devtools/panel/panel.html")) {
         return;
       }
 
