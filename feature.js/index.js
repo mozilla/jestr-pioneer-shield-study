@@ -1,54 +1,65 @@
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "(feature)" }]*/
+
 ("use strict");
 
 import { storeInDb, initDb } from "./db";
 import { startStoringJsInstrumentationResultsInDb } from "./storeDataLeaks";
 import { BrowserActionDebugButton } from "./BrowserActionDebugButton";
 
-async function runOnce() {
-  // ensure we have configured shieldUtils and are supposed to run our feature
-  /*
-  await browser.shieldUtils.bootstrapStudy();
+class Feature {
+  constructor() {}
 
-  // get study variation
-  const { variation } = await browser.shieldUtils.info();
-  */
+  async configure(studyInfo) {
+    const feature = this;
+    const { variation, isFirstRun } = studyInfo;
 
-  const variation = {
-    name: "foo",
-    weight: 1,
-  };
+    // a button for debugging (tmp)
+    new BrowserActionDebugButton(variation);
 
-  // a button for debugging (tmp)
-  new BrowserActionDebugButton(variation);
+    // start local study logging
+    await initDb();
+    await storeInDb("studyLog", { variation: variation.name, event: "run" });
+    startStoringJsInstrumentationResultsInDb(variation);
 
-  // start local study logging
-  await initDb();
-  await storeInDb("studyLog", { variation: variation.name, event: "run" });
-  startStoringJsInstrumentationResultsInDb(variation);
-}
+    // For devtools messages
 
-// For devtools messages
+    /**
+     When we receive the message, execute the given script in the given
+     tab.
+     */
+    function handleMessage(request, sender) {
+      if (sender.url != browser.runtime.getURL("/devtools/panel/panel.html")) {
+        return;
+      }
 
-/**
- When we receive the message, execute the given script in the given
- tab.
- */
-function handleMessage(request, sender, sendResponse) {
+      browser.tabs.executeScript(request.tabId, {
+        code: request.script,
+      });
+    }
 
-  if (sender.url != browser.runtime.getURL("/devtools/panel/panel.html")) {
-    return;
+    /**
+     Listen for messages from our devtools panel.
+     */
+    browser.runtime.onMessage.addListener(handleMessage);
+
+    // perform something only during first run
+    if (isFirstRun) {
+      await storeInDb("studyLog", {
+        variation: variation.name,
+        event: "firstRun",
+      });
+    }
   }
 
-  browser.tabs.executeScript(
-    request.tabId,
-    {
-      code: request.script
-    });
+  sendTelemetry(stringStringMap) {
+    browser.study.sendTelemetry(stringStringMap);
+  }
 
+  /**
+   * Called at end of study, and if the user disables the study or it gets uninstalled by other means.
+   */
+  async cleanup() {}
 }
 
-/**
- Listen for messages from our devtools panel.
- */
-browser.runtime.onMessage.addListener(handleMessage);
-
+// make an instance of the feature class available to background.js
+window.feature = new Feature();

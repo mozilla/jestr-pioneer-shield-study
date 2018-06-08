@@ -10,6 +10,24 @@
     }
   },
   "default_locale": "en-US",
+  "experiment_apis": {
+    "prefs": {
+      "schema": "./privileged/prefs/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "./privileged/prefs/api.js",
+        "paths": [["prefs"]]
+      }
+    },
+    "study": {
+      "schema": "./privileged/study/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "./privileged/study/api.js",
+        "paths": [["study"]]
+      }
+    }
+  },
   "permissions": ["storage", "alarms"],
   "content_scripts": [
     {
@@ -20,7 +38,7 @@
     }
   ],
   "background": {
-    "scripts": ["studySetup.js", "Feature.js", "background.js"]
+    "scripts": ["studySetup.js", "feature.js", "background.js"]
   },
   "icons": {
     "48": "icons/shield-icon.svg"
