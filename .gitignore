@@ -1,4 +1,2 @@
 node_modules
-src/privileged/shieldUtils/jsm/StudyUtils.jsm
-src/privileged/shieldUtils/jsm/PioneerUtils.jsm
 src/feature.js
