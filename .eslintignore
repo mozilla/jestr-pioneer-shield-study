@@ -3,6 +3,7 @@ src/OpenWPM-adapted/*
 src/data-leak/*
 openwpm.*.js
 # do not lint/format generated artifacts
+test/coverage/
 dist/
 package-lock.json
 src/feature.js
