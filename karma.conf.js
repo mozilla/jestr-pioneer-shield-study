@@ -5,6 +5,8 @@ if (process.env.COVERALLS_REPO_TOKEN) {
   reporters.push("coveralls");
 }
 
+const webpackConfig = require('./webpack.config.js');
+
 module.exports = function(config) {
   config.set({
     singleRun: true,
@@ -34,10 +36,14 @@ module.exports = function(config) {
     files: [
       "node_modules/sinon/pkg/sinon.js",
       "node_modules/sinon-chrome/bundle/sinon-chrome.min.js",
-      "src/feature.js",
+      "feature.js/index.js",
       "test/unit/*.spec.js",
     ],
-    preprocessors: { "src/feature.js": ["babel"] },
+    webpack: webpackConfig,
+    preprocessors: {
+      "feature.js/*.js": ["webpack"],
+      "src/**/*.js": ["babel"],
+    },
     plugins: [
       "karma-babel-preprocessor",
       "karma-chai",
@@ -46,6 +52,7 @@ module.exports = function(config) {
       "karma-firefox-launcher",
       "karma-mocha",
       "karma-mocha-reporter",
+      "karma-webpack",
     ],
   });
 };
