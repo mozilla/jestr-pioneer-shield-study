@@ -74,20 +74,20 @@ class StudyLifeCycleHandler {
    *
    * @returns {undefined}
    */
-  async enableFeature(studyInfo) {
-    console.log("enabling feature", studyInfo);
-    if (studyInfo.timeUntilExpire) {
+  enableFeature(studyInfo) {
+    console.log("Enabling experiment", studyInfo);
+    const { delayInMinutes } = studyInfo;
+    if (delayInMinutes !== undefined) {
       const alarmName = `${browser.runtime.id}:studyExpiration`;
       const alarmListener = async alarm => {
         if (alarm.name === alarmName) {
-          console.log("study will expire now!");
           browser.alarms.onAlarm.removeListener(alarmListener);
           await browser.study.endStudy("expired");
         }
       };
       browser.alarms.onAlarm.addListener(alarmListener);
       browser.alarms.create(alarmName, {
-        delayInMinutes: studyInfo.timeUntilExpire / (1000 * 60),
+        delayInMinutes,
       });
     }
     feature.configure(studyInfo);
@@ -103,19 +103,19 @@ class StudyLifeCycleHandler {
    * @returns {undefined}
    */
   async handleStudyEnding(ending) {
-    console.log(`study wants to end:`, ending);
+    console.log(`Study wants to end:`, ending);
     for (const url of ending.urls) {
       await browser.tabs.create({ url });
     }
     switch (ending.endingName) {
       // could have different actions depending on positive / ending names
       default:
-        console.log(`the ending: ${ending.endingName}`);
+        console.log(`The ending: ${ending.endingName}`);
         await this.cleanup();
         break;
     }
     // actually remove the addon.
-    console.log("about to actually uninstall");
+    console.log("About to actually uninstall");
     return browser.management.uninstallSelf();
   }
 }
@@ -129,7 +129,7 @@ async function onEveryExtensionLoad() {
   new StudyLifeCycleHandler();
 
   const studySetup = await getStudySetup();
-  console.log(`studySetup: ${JSON.stringify(studySetup)}`);
+  console.log(`Study setup: `, studySetup);
   await browser.study.setup(studySetup);
 }
 onEveryExtensionLoad();

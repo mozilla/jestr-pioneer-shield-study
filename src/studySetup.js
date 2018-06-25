@@ -42,9 +42,7 @@ const baseStudySetup = {
       ],
     },
     ineligible: {
-      baseUrls: [
-        "https://qsurvey.mozilla.com/s3/Shield-Study-Example-Survey/?reason=ineligible",
-      ],
+      baseUrls: [],
     },
     expired: {
       baseUrls: [
@@ -95,13 +93,6 @@ const baseStudySetup = {
   expire: {
     days: 14,
   },
-
-  // Optional: testing overrides.
-  // Set from prefs in getStudySetup
-  testing: {
-    variation: null,
-    firstRunTimestamp: null,
-  },
 };
 
 /**
@@ -143,21 +134,20 @@ async function cachingFirstRunShouldAllowEnroll() {
  * @return {object} studySetup A complete study setup object
  */
 async function getStudySetup() {
-  const id = browser.runtime.id;
-  const prefs = {
-    variation: `shield.${id}.variation`,
-    firstRunTimestamp: `shield.${id}.firstRunTimestamp`,
-  };
-
   // shallow copy
   const studySetup = Object.assign({}, baseStudySetup);
 
   studySetup.allowEnroll = await cachingFirstRunShouldAllowEnroll();
+
+  const testingPreferences = await browser.testingOverrides.listPreferences();
+  console.log(
+    "The preferences that can be used to override testing flags: ",
+    testingPreferences,
+  );
   studySetup.testing = {
-    variation: await browser.prefs.getStringPref(prefs.variation),
-    firstRunTimestamp: await browser.prefs.getStringPref(
-      prefs.firstRunTimestamp,
-    ),
+    variationName: await browser.testingOverrides.getVariationNameOverride(),
+    firstRunTimestamp: await browser.testingOverrides.getFirstRunTimestampOverride(),
+    expired: await browser.testingOverrides.getExpiredOverride(),
   };
   return studySetup;
 }

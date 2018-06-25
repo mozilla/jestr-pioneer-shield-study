@@ -6,7 +6,7 @@
 
 **Contents**
 
-* [Usual Firefox Telemetry is unaffected.](#usual-firefox-telemetry-is-unaffected)
+* [Usual Firefox Telemetry is mostly unaffected](#usual-firefox-telemetry-is-mostly-unaffected)
 * [Study-specific endings](#study-specific-endings)
 * [`shield-study` pings (common to all shield-studies)](#shield-study-pings-common-to-all-shield-studies)
 * [`shield-study-addon` pings, specific to THIS study.](#shield-study-addon-pings-specific-to-this-study)
@@ -14,14 +14,12 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Usual Firefox Telemetry is unaffected.
+## Usual Firefox Telemetry is mostly unaffected
 
-* No change: `main` and other pings are UNAFFECTED by this add-on.
+* No change: `main` and other pings are UNAFFECTED by this add-on, except that [shield-studies-addon-utils](https://github.com/mozilla/shield-studies-addon-utils) adds the add-on id as an active experiment in the telemetry environment.
 * Respects telemetry preferences. If user has disabled telemetry, no telemetry will be sent.
 
 ## Study-specific endings
-
-This study has no surveys and as such has NO SPECIFIC ENDINGS.
 
 The STUDY SPECIFIC ENDINGS this study supports are:
 
@@ -66,10 +64,12 @@ version       3
 {
   "study_state": "enter"
 }
+
 2017-10-09T14:16:18.055Z shield-study
 {
   "study_state": "installed"
 }
+
 2017-10-09T14:16:18.066Z shield-study-addon
 {
   "attributes": {
@@ -77,6 +77,7 @@ version       3
     "promptType": "notificationBox-strings-1"
   }
 }
+
 2017-10-09T16:29:44.109Z shield-study-addon
 {
   "attributes": {
@@ -89,11 +90,13 @@ version       3
     "message": "Is Firefox performing up to your expectations?"
   }
 }
+
 2017-10-09T16:29:44.188Z shield-study
 {
   "study_state": "ended-neutral",
   "study_state_fullname": "voted"
 }
+
 2017-10-09T16:29:44.191Z shield-study
 {
   "study_state": "exit"

@@ -11,14 +11,6 @@
   },
   "default_locale": "en-US",
   "experiment_apis": {
-    "prefs": {
-      "schema": "./privileged/prefs/schema.json",
-      "parent": {
-        "scopes": ["addon_parent"],
-        "script": "./privileged/prefs/api.js",
-        "paths": [["prefs"]]
-      }
-    },
     "study": {
       "schema": "./privileged/study/schema.json",
       "parent": {
@@ -26,9 +18,17 @@
         "script": "./privileged/study/api.js",
         "paths": [["study"]]
       }
+    },
+    "testingOverrides": {
+      "schema": "./privileged/testingOverrides/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "./privileged/testingOverrides/api.js",
+        "paths": [["testingOverrides"]]
+      }
     }
   },
-  "permissions": ["storage", "alarms"],
+  "permissions": ["management", "storage", "alarms"],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],

@@ -10,9 +10,10 @@ const defaultConfig = {
     overwriteDest: true,
   },
   run: {
-    firefox: "firefoxdeveloperedition",
+    firefox: process.env.FIREFOX_BINARY || "firefoxdeveloperedition",
     browserConsole: true,
     startUrl: ["about:debugging"],
+    pref: ["shieldStudy.logLevel=All"],
   },
 };
 

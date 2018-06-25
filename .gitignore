@@ -3,3 +3,4 @@ node_modules/
 src/feature.js
 .env
 test/coverage
+/firefox-*
