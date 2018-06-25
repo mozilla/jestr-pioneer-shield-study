@@ -11,6 +11,14 @@
   },
   "default_locale": "en-US",
   "experiment_apis": {
+    "openwpm": {
+      "schema": "./src/privileged/openwpm/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "./src/privileged/openwpm/api.js",
+        "paths": [["openwpm", "openwpmDebug"]]
+      }
+    },
     "study": {
       "schema": "./privileged/study/schema.json",
       "parent": {
