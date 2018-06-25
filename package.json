@@ -1,7 +1,7 @@
 {
   "name": "dataleak-pioneer-shield-study",
   "description": "Data Leak Pioneer Shield Study",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Fredrik Wollsén <fwollsen@mozilla.org>",
   "bugs": {
     "url": "https://github.com/mozilla/shield-studies-addon-template/issues"
