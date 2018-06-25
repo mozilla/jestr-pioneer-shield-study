@@ -5,7 +5,7 @@
   "manifest_version": 2,
   "applications": {
     "gecko": {
-      "id": "dataleak-pioneer-shield-study@shield.mozilla.org",
+      "id": "dataleak-pioneer-shield-study@pioneer.mozilla.org",
       "strict_min_version": "61.0a1"
     }
   },

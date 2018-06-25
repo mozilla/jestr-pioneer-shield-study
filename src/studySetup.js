@@ -22,8 +22,8 @@ const baseStudySetup = {
   // used for activeExperiments tagging (telemetryEnvironment.setActiveExperiment)
   activeExperimentName: browser.runtime.id,
 
-  // uses shield sampling and telemetry semantics.  Future: will support "pioneer"
-  studyType: "shield",
+  // use shield or pioneer sampling and telemetry semantics
+  studyType: "pioneer",
 
   // telemetry
   telemetry: {
