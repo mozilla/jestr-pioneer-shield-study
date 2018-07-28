@@ -5,7 +5,7 @@ if (process.env.COVERALLS_REPO_TOKEN) {
   reporters.push("coveralls");
 }
 
-const webpackConfig = require('./webpack.config.js');
+const webpackConfig = require("./webpack.config.js");
 
 module.exports = function(config) {
   config.set({
