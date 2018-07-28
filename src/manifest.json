@@ -12,11 +12,11 @@
   "default_locale": "en-US",
   "experiment_apis": {
     "openwpm": {
-      "schema": "./src/privileged/openwpm/schema.json",
+      "schema": "./privileged/openwpm/schema.json",
       "parent": {
         "scopes": ["addon_parent"],
-        "script": "./src/privileged/openwpm/api.js",
-        "paths": [["openwpm", "openwpmDebug"]]
+        "script": "./privileged/openwpm/api.js",
+        "paths": [["openwpm"]]
       }
     },
     "study": {
@@ -46,7 +46,12 @@
     }
   ],
   "background": {
-    "scripts": ["studySetup.js", "feature.js", "background.js"]
+    "scripts": [
+      "studySetup.js",
+      "openwpmSetup.js",
+      "feature.js",
+      "background.js"
+    ]
   },
   "icons": {
     "48": "icons/shield-icon.svg"
