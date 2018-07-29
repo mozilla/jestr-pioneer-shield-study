@@ -9,7 +9,7 @@
   "dependencies": {
     "data-leak": "git+https://github.com/groovecoder/data-leak.git#ucosp",
     "idb": "^2.0.4",
-    "openwpm-webext-experiment": "github:mozilla/OpenWPM-WebExtension-Experiment#develop",
+    "openwpm-webext-experiment": "github:mozilla/OpenWPM-WebExtension-Experiment#network-monitoring-and-har-export",
     "shield-studies-addon-utils": "github:mozilla/shield-studies-addon-utils#release/5.0.3"
   },
   "devDependencies": {
