@@ -6,6 +6,7 @@
 import { storeInDb, initDb } from "./db";
 import { startStoringJsInstrumentationResultsInDb } from "./storeDataLeaks";
 import { BrowserActionDebugButton } from "./BrowserActionDebugButton";
+import { TabsMonitor } from "./TabsMonitor";
 
 class Feature {
   constructor() {}
@@ -55,6 +56,10 @@ class Feature {
     const openwpmSetup = await getOpenwpmSetup();
     console.log(`OpenWPM setup: `, openwpmSetup);
     await this.ensureOpenWPMHasStarted(openwpmSetup);
+
+    // Monitor tabs
+    this.tabsMonitor = new TabsMonitor();
+    this.tabsMonitor.configure(feature);
   }
 
   sendTelemetry(stringStringMap) {
@@ -66,6 +71,7 @@ class Feature {
    */
   async cleanup() {
     await this.ensureOpenWPMHasStopped();
+    await this.tabsMonitor.cleanup();
   }
 
   async ensureOpenWPMHasStarted(openwpmSetup) {
