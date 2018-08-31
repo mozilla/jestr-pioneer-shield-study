@@ -9,7 +9,7 @@
   "dependencies": {
     "data-leak": "git+https://github.com/groovecoder/data-leak.git#ucosp",
     "idb": "^2.0.4",
-    "openwpm-webext-experiment": "github:mozilla/OpenWPM-WebExtension-Experiment#0aa4f733868ee58c49f2942eb96f819ab52ab250",
+    "openwpm-webext-experiment": "github:mozilla/OpenWPM-WebExtension-Experiment#626fcbbe0fab1111de8590dd3cf7951a43f84682",
     "shield-studies-addon-utils": "5.0.3"
   },
   "devDependencies": {
@@ -77,7 +77,7 @@
     "docformat": "doctoc --title '**Contents**' docs/*.md && prettier '**/*.md' --write",
     "eslint": "eslint . --ext jsm,js,json",
     "eslint-fix": "npm run eslint -- --fix",
-    "format": "# disabled due to issue with windows - prettier '**/*.{css,js,json,jsm,md}' --trailing-comma=all --ignore-path=.eslintignore --write",
+    "format": "echo disabled due to issue with windows - prettier '**/*.{css,js,json,jsm,md}' --trailing-comma=all --ignore-path=.eslintignore --write",
     "generate": "npm-run-all -s -n generate:schema:* generate:docs:* generate:stubApi:* format",
     "generate:docs:testingOverrides": "node ./node_modules/shield-studies-addon-utils/weeUtils/documentSchema.js ./src/privileged/testingOverrides/schema.json > ./src/privileged/testingOverrides/api.md",
     "generate:schema:testingOverrides": "cd ./src/privileged/testingOverrides && yaml2json schema.yaml -p > schema.json && node ../../../node_modules/shield-studies-addon-utils/weeUtils/verifyWeeSchema.js schema.json",
