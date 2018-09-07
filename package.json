@@ -10,7 +10,7 @@
     "data-leak": "git+https://github.com/groovecoder/data-leak.git#ucosp",
     "idb": "^2.0.4",
     "openwpm-webext-experiment": "github:mozilla/OpenWPM-WebExtension-Experiment#42beb4fead4878c7854022b8a2588271f52050fc",
-    "shield-studies-addon-utils": "5.0.3"
+    "shield-studies-addon-utils": "github:motin/shield-studies-addon-utils#issues-142-and-128-support-pioneer-pipeline"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
