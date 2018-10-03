@@ -1,38 +1,38 @@
-/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "getOpenwpmSetup" }]*/
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "getOpenwpmConfig" }]*/
 
 /**
  *  Overview:
  *
- *  - constructs a well-formatted `openwpmSetup` for use by `browser.openwpm.start`
+ *  - constructs a well-formatted `openwpmConfig` for use by `browser.openwpm.start`
  *  - mostly declarative, except that some fields are set at runtime
  *    asynchronously.
  */
 
 /**
- * Base for openwpmSetup, as used by `browser.openwpm.start`.
+ * Base for openwpmConfig, as used by `browser.openwpm.start`.
  *
- * Will be augmented by 'getOpenwpmSetup'
+ * Will be augmented by 'getOpenwpmConfig'
  */
-const baseOpenwpmSetup = {
-  cookie_instrument: false,
-  js_instrument: false,
-  cp_instrument: false,
-  http_instrument: false,
-  save_javascript: false,
-  save_all_content: false,
+const baseOpenwpmConfig = {
+  cookie_instrument: true,
+  js_instrument: true,
+  http_instrument: true,
+  save_javascript: true,
+  save_all_content: true,
+  crawl_id: "pioneer",
 };
 
 /**
- * Augment declarative openwpmSetup with any necessary async values
+ * Augment declarative openwpmConfig with any necessary async values
  *
- * @return {object} openwpmSetup A complete openwpm setup object
+ * @return {object} openwpmConfig A complete openwpm config object
  */
-async function getOpenwpmSetup() {
+async function getOpenwpmConfig() {
   // shallow copy
-  const openwpmSetup = Object.assign({}, baseOpenwpmSetup);
+  const openwpmConfig = Object.assign({}, baseOpenwpmConfig);
 
   // override keys various ways, such as by prefs
   // TODO
 
-  return openwpmSetup;
+  return openwpmConfig;
 }

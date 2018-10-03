@@ -36,15 +36,6 @@
       }
     }
   },
-  "permissions": ["management", "storage", "alarms", "tabs"],
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content/openwpm.content.js"],
-      "run_at": "document_start",
-      "all_frames": true
-    }
-  ],
   "background": {
     "scripts": [
       "studySetup.js",
@@ -53,6 +44,28 @@
       "background.js"
     ]
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "permissions": [
+    "<all_urls>",
+    "webRequest",
+    "webRequestBlocking",
+    "cookies",
+    "management",
+    "storage",
+    "alarms",
+    "tabs"
+  ],
   "icons": {
     "48": "icons/shield-icon.svg"
   },

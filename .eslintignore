@@ -6,6 +6,7 @@ openwpm.*.js
 test/coverage/
 dist/
 package-lock.json
+src/content.js
 src/feature.js
 # do not lint/format bundled util libraries
 src/privileged/openwpm/api.js

@@ -1,12 +1,13 @@
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "(feature)" }]*/
-/* global getOpenwpmSetup */
+/* global getOpenwpmConfig */
 
 ("use strict");
 
 import { storeInDb, initDb } from "./db";
-import { startStoringJsInstrumentationResultsInDb } from "./storeDataLeaks";
+import * as dataReceiver from "./dataReceiver";
 import { BrowserActionDebugButton } from "./BrowserActionDebugButton";
 import { TabsMonitor } from "./TabsMonitor";
+import { CookieInstrument, JavascriptInstrument, HttpInstrument } from "openwpm-webext-instrumentation";
 
 class Feature {
   constructor() {}
@@ -21,7 +22,6 @@ class Feature {
     // start local study logging
     await initDb();
     await storeInDb("studyLog", { variation: variation.name, event: "run" });
-    startStoringJsInstrumentationResultsInDb(variation);
 
     // For devtools messages
 
@@ -53,9 +53,8 @@ class Feature {
     }
 
     // Start OpenWPM instrumentation
-    const openwpmSetup = await getOpenwpmSetup();
-    console.log(`OpenWPM setup: `, openwpmSetup);
-    await this.ensureOpenWPMHasStarted(openwpmSetup);
+    const openwpmConfig = await getOpenwpmConfig();
+    this.startOpenWPMInstrumentation(openwpmConfig);
 
     // Monitor tabs
     this.tabsMonitor = new TabsMonitor();
@@ -66,31 +65,32 @@ class Feature {
     browser.study.sendTelemetry(stringStringMap);
   }
 
+  startOpenWPMInstrumentation(config) {
+    if (config['cookie_instrument']) {
+      dataReceiver.logDebug("Cookie instrumentation enabled");
+      const cookieInstrument = new CookieInstrument(dataReceiver);
+      cookieInstrument.run(config['crawl_id']);
+    }
+    if (config['js_instrument']) {
+      dataReceiver.logDebug("Javascript instrumentation enabled");
+      const jsInstrument = new JavascriptInstrument(dataReceiver);
+      jsInstrument.run(config['crawl_id']);
+    }
+    if (config['http_instrument']) {
+      dataReceiver.logDebug("HTTP Instrumentation enabled");
+      const httpInstrument = new HttpInstrument(dataReceiver);
+      httpInstrument.run(config['crawl_id'], config['save_javascript'],
+        config['save_all_content']);
+    }
+  }
+
   /**
    * Called at end of study, and if the user disables the study or it gets uninstalled by other means.
    */
   async cleanup() {
-    await this.ensureOpenWPMHasStopped();
     await this.tabsMonitor.cleanup();
   }
 
-  async ensureOpenWPMHasStarted(openwpmSetup) {
-    return new Promise(resolve => {
-      browser.openwpm.onStarted.addListener(openwpmStatus => {
-        resolve(openwpmStatus);
-      });
-      browser.openwpm.start(openwpmSetup);
-    });
-  }
-
-  async ensureOpenWPMHasStopped() {
-    return new Promise(resolve => {
-      browser.openwpm.onStopped.addListener(ending => {
-        resolve(ending);
-      });
-      browser.openwpm.stop();
-    });
-  }
 }
 
 // make an instance of the feature class available to background.js
