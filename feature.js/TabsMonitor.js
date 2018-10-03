@@ -13,7 +13,7 @@ export class TabsMonitor {
     browser.tabs.onRemoved.addListener(this.tabRemovedListener);
   }
 
-  clear() {
+  cleanup() {
     browser.tabs.onActivated.removeListener(this.tabActivatedListener);
     browser.tabs.onCreated.removeListener(this.tabCreatedListener);
     browser.tabs.onUpdated.removeListener(this.tabUpdatedListener);
