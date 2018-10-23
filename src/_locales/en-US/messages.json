@@ -1,15 +1,15 @@
 {
   "extensionName": {
-    "message": "Data Leak Pioneer Shield Study",
+    "message": "JESTr Pioneer Shield Study",
     "description": "Name of the extension"
   },
   "extensionDescription": {
-    "message": "Data Leak Pioneer Shield Study",
+    "message": "JESTr Pioneer Shield Study",
     "description": "Description of the extension."
   },
   "buttonTitle": {
     "message":
-      "Data Leak Pioneer Shield Study Debug (Click and check Browser Console)",
+      "JESTr Pioneer Shield Study Debug (Click and check Browser Console)",
     "description":
       "Description shown on the toolbar when hovered. DO NOT localise 'Mozilla'."
   }

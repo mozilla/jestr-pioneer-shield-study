@@ -1,6 +1,6 @@
 import idb from "idb";
 
-const dbName = "dataleakPioneerShieldStudy";
+const dbName = "jestrPioneerShieldStudy";
 
 let db;
 
@@ -10,7 +10,7 @@ export async function initDb() {
     upgradeDB.createObjectStore("studyLog", {
       autoIncrement: true,
     });
-    upgradeDB.createObjectStore("dataLeaks", {
+    upgradeDB.createObjectStore("navigations", {
       autoIncrement: true,
     });
   });
@@ -37,8 +37,8 @@ export async function dumpDbContents() {
 
   const studyLogDbContents = await getAllData("studyLog");
   console.log("studyLogDbContents", studyLogDbContents);
-  const dataLeaksDbContents = await getAllData("dataLeaks");
-  console.log("dataLeaksDbContents", dataLeaksDbContents);
+  const navigationsDbContents = await getAllData("navigations");
+  console.log("navigationsDbContents", navigationsDbContents);
 
   console.log("=========================");
   console.log("Dumping Database Contents - Done");

@@ -1,4 +1,4 @@
-# Dataleak Pioneer Shield Study
+# JESTr Pioneer Shield Study
 
 [![CircleCI badge](https://img.shields.io/circleci/project/github/motin/jestr-pioneer-shield-study/master.svg?label=CircleCI)](https://circleci.com/gh/motin/jestr-pioneer-shield-study/)
 [![Coverage Status](https://coveralls.io/repos/github/motin/jestr-pioneer-shield-study/badge.svg)](https://coveralls.io/github/motin/jestr-pioneer-shield-study)

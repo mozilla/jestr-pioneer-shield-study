@@ -1,6 +1,6 @@
 {
   "name": "jestr-pioneer-shield-study",
-  "description": "Data Leak Pioneer Shield Study",
+  "description": "JESTr Pioneer Shield Study",
   "version": "0.3.0",
   "author": "Fredrik Wollsén <fwollsen@mozilla.org>",
   "bugs": {

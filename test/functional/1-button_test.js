@@ -54,7 +54,7 @@ describe("ui button (browserAction)", function() {
     const text = await button.getAttribute("tooltiptext");
     return assert.equal(
       text,
-      "Data Leak Pioneer Shield Study Debug (Click and check Browser Console)",
+      "JESTr Pioneer Shield Study Debug (Click and check Browser Console)",
     );
   });
   */

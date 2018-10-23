@@ -15,7 +15,7 @@ function handleHidden() {
 Create a panel, and add listeners for panel show/hide events.
 */
 browser.devtools.panels
-  .create("Dataleaks", "/icons/star.png", "/devtools/panel/panel.html")
+  .create("JESTr Debug", "/icons/star.png", "/devtools/panel/panel.html")
   .then(newPanel => {
     newPanel.onShown.addListener(handleShown);
     newPanel.onHidden.addListener(handleHidden);
