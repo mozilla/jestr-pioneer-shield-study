@@ -1,7 +1,7 @@
 # Dataleak Pioneer Shield Study
 
-[![CircleCI badge](https://img.shields.io/circleci/project/github/motin/dataleak-pioneer-shield-study/master.svg?label=CircleCI)](https://circleci.com/gh/motin/dataleak-pioneer-shield-study/)
-[![Coverage Status](https://coveralls.io/repos/github/motin/dataleak-pioneer-shield-study/badge.svg)](https://coveralls.io/github/motin/dataleak-pioneer-shield-study)
+[![CircleCI badge](https://img.shields.io/circleci/project/github/motin/jestr-pioneer-shield-study/master.svg?label=CircleCI)](https://circleci.com/gh/motin/jestr-pioneer-shield-study/)
+[![Coverage Status](https://coveralls.io/repos/github/motin/jestr-pioneer-shield-study/badge.svg)](https://coveralls.io/github/motin/jestr-pioneer-shield-study)
 
 ## Seeing the add-on in action
 
