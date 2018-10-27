@@ -3,7 +3,7 @@
 /**
  *  Overview:
  *
- *  - constructs a well-formatted `openwpmConfig` for use by `browser.openwpm.start`
+ *  - constructs a well-formatted `openwpmConfig` for use by `feature.startOpenWPMInstrumentation()`
  *  - mostly declarative, except that some fields are set at runtime
  *    asynchronously.
  */
