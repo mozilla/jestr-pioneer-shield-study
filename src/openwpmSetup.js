@@ -17,8 +17,8 @@ const baseOpenwpmConfig = {
   cookie_instrument: true,
   js_instrument: true,
   http_instrument: true,
-  save_javascript: true,
-  save_all_content: true,
+  save_javascript: false,
+  save_all_content: false,
   crawl_id: "pioneer",
 };
 

@@ -52,22 +52,14 @@ const baseStudySetup = {
   // Weightings for the study variations
   weightedVariations: [
     {
-      name: "kittens",
-      weight: 1.5,
-    },
-    {
-      name: "puppers",
-      weight: 1.5,
-    },
-    {
-      name: "lizard",
+      name: "pioneer",
       weight: 1,
-    }, // we want more puppers in our sample
+    },
   ],
 
   // maximum time that the study should run, from the first run
   expire: {
-    days: 14,
+    days: 7 * 5, // 5 weeks
   },
 };
 
