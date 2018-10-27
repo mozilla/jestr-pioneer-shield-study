@@ -5,7 +5,6 @@
 
 import { storeInDb, initDb } from "./db";
 import * as dataReceiver from "./dataReceiver";
-import { BrowserActionDebugButton } from "./BrowserActionDebugButton";
 import { TabsMonitor } from "./TabsMonitor";
 import {
   CookieInstrument,
@@ -19,9 +18,6 @@ class Feature {
   async configure(studyInfo) {
     const feature = this;
     const { variation, isFirstRun } = studyInfo;
-
-    // a button for debugging (tmp)
-    new BrowserActionDebugButton(variation);
 
     // start local study logging
     await initDb();

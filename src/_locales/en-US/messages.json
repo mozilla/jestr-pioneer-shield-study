@@ -6,9 +6,5 @@
   "extensionDescription": {
     "message": "The jestr study helps Firefox developers understand the behavior of pages executing third-party Javascript resources that may be used to track your web browsing activity.",
     "description": "Description of the extension."
-  },
-  "buttonTitle": {
-    "message": "JESTr Pioneer Shield Study Debug (Click and check Browser Console)",
-    "description": "Description shown on the toolbar when hovered. DO NOT localise 'Mozilla'."
   }
 }

@@ -50,10 +50,5 @@
   "icons": {
     "48": "icons/shield-icon.svg",
     "96": "icons/shield-icon.svg"
-  },
-  "browser_action": {
-    "browser_style": true,
-    "default_icon": "icons/shield-icon.svg",
-    "default_title": "__MSG_buttonTitle__"
   }
 }
