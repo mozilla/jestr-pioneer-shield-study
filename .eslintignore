@@ -1,7 +1,3 @@
-# do not lint/format external source files since we wan't to be able to diff against upstream later
-src/OpenWPM-adapted/*
-src/data-leak/*
-openwpm.*.js
 # do not lint/format generated artifacts
 test/coverage/
 dist/
