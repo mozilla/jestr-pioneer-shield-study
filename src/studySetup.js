@@ -22,15 +22,17 @@ const baseStudySetup = {
   // used for activeExperiments tagging (telemetryEnvironment.setActiveExperiment)
   activeExperimentName: browser.runtime.id,
 
-  // use shield or pioneer sampling and telemetry semantics
+  // use either "shield" or "pioneer" telemetry semantics and data pipelines
   studyType: "pioneer",
 
   // telemetry
   telemetry: {
-    // default false. Actually send pings.
+    // Actually submit the pings to Telemetry. [default if omitted: false]
     send: true,
-    // Marks pings with testing=true.  Set flag to `true` before final release
+    // Marks pings with testing=true. Set flag to `true` for pings are meant to be seen by analysts [default if omitted: false]
     removeTestingFlag: false,
+    // Keep an internal telemetry archive. Useful for verifying payloads of Pioneer studies without risking actually sending any unencrypted payloads [default if omitted: false]
+    internalTelemetryArchive: false,
   },
 
   // endings with urls
@@ -81,13 +83,14 @@ const baseStudySetup = {
  *
  * This implementation caches in local storage to speed up second run.
  *
+ * @param {object} studySetup A complete study setup object
  * @returns {Promise<boolean>} answer An boolean answer about whether the user should be
  *       allowed to enroll in the study
  */
-async function cachingFirstRunShouldAllowEnroll() {
+async function cachingFirstRunShouldAllowEnroll(studySetup) {
   // Cached answer.  Used on 2nd run
-  let allowed = await browser.storage.local.get("allowEnroll");
-  if (allowed) return true;
+  let allowed = await browser.storage.local.get("allowedEnrollOnFirstRun");
+  if (allowed.allowedEnrollOnFirstRun === true) return true;
 
   /*
   First run, we must calculate the answer.
@@ -95,10 +98,16 @@ async function cachingFirstRunShouldAllowEnroll() {
   */
 
   // could have other reasons to be eligible, such add-ons, prefs
-  allowed = true;
+  const dataPermissions = await browser.study.getDataPermissions();
+  if (studySetup.studyType === "shield") {
+    allowed = dataPermissions.shield;
+  }
+  if (studySetup.studyType === "pioneer") {
+    allowed = dataPermissions.pioneer;
+  }
 
   // cache the answer
-  await browser.storage.local.set({ allowEnroll: allowed });
+  await browser.storage.local.set({ allowedEnrollOnFirstRun: allowed });
   return allowed;
 }
 
@@ -111,17 +120,15 @@ async function getStudySetup() {
   // shallow copy
   const studySetup = Object.assign({}, baseStudySetup);
 
-  studySetup.allowEnroll = await cachingFirstRunShouldAllowEnroll();
+  studySetup.allowEnroll = await cachingFirstRunShouldAllowEnroll(studySetup);
 
-  const testingPreferences = await browser.testingOverrides.listPreferences();
-  console.log(
-    "The preferences that can be used to override testing flags: ",
-    testingPreferences,
-  );
+  const testingOverrides = await browser.study.getTestingOverrides();
   studySetup.testing = {
-    variationName: await browser.testingOverrides.getVariationNameOverride(),
-    firstRunTimestamp: await browser.testingOverrides.getFirstRunTimestampOverride(),
-    expired: await browser.testingOverrides.getExpiredOverride(),
+    variationName: testingOverrides.variationName,
+    firstRunTimestamp: testingOverrides.firstRunTimestamp,
+    expired: testingOverrides.expired,
   };
+  // TODO: Possible add testing override for studySetup.telemetry.internalTelemetryArchive
+
   return studySetup;
 }
