@@ -50,7 +50,7 @@ npm run build
 
 ## Details
 
-First, make sure you are on NPM 6+ installed:
+First, make sure you are on NPM 8+ installed:
 
 ```shell
 npm install -g npm
@@ -144,6 +144,8 @@ ln -s Firefox\ Nightly.app FirefoxNightly.app
 ```
 
 ### Functional tests
+
+(To run the functional tests, package.json has to be updated to reflect the built add-on zip filename the declaration of `npm run test:func` - this is silly and there is an issue about it here: https://github.com/mozilla/shield-studies-addon-template/issues/75 - but we are stuck with having to manually update it for the time being.)
 
 ```shell
 npm run test:func

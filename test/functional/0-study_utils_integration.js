@@ -8,7 +8,7 @@ const utils = require("./utils");
 
 describe("basic shield utils integration", function() {
   // This gives Firefox time to start, and us a bit longer during some of the tests.
-  this.timeout(15000);
+  this.timeout(25000);
 
   let driver;
   let beginTime;
@@ -126,7 +126,7 @@ describe("basic shield utils integration", function() {
 
 describe("setup of an already expired study should result in endStudy('expired')", function() {
   // This gives Firefox time to start, and us a bit longer during some of the tests.
-  this.timeout(15000);
+  this.timeout(25000);
 
   let driver;
   let beginTime;
@@ -159,7 +159,7 @@ describe("setup of an already expired study should result in endStudy('expired')
 
     before(async() => {
       // allow our shield study add-on some time to send initial pings
-      await driver.sleep(4000);
+      await driver.sleep(2000);
       // collect sent pings
       studyPings = await utils.telemetry.getShieldPingsAfterTimestamp(
         driver,
@@ -198,7 +198,7 @@ describe("setup of an already expired study should result in endStudy('expired')
 
 describe("setup of a study that expires within a few seconds should result in endStudy('expired') after a few seconds", function() {
   // This gives Firefox time to start, and us a bit longer during some of the tests.
-  this.timeout(15000);
+  this.timeout(25000);
 
   let driver;
   let beginTime;
@@ -210,7 +210,7 @@ describe("setup of a study that expires within a few seconds should result in en
     // Set preference that simulates that the study will expire after a few seconds
     const msInOneDay = 60 * 60 * 24 * 1000;
     const expiresInDays = 14; // Needs to be the same as in src/studySetup.js
-    const firstRunTimestamp = beginTime - msInOneDay * expiresInDays + 5000;
+    const firstRunTimestamp = beginTime - msInOneDay * expiresInDays + 8000;
     const addonWidgetId = await utils.ui.addonWidgetId();
     const customPreferences = Object.assign({}, utils.FIREFOX_PREFERENCES);
     customPreferences[
@@ -234,7 +234,7 @@ describe("setup of a study that expires within a few seconds should result in en
 
     before(async() => {
       // allow our shield study add-on some time to send initial pings
-      await driver.sleep(1000);
+      await driver.sleep(2000);
       // collect sent pings
       studyPings = await utils.telemetry.getShieldPingsAfterTimestamp(
         driver,
@@ -261,7 +261,7 @@ describe("setup of a study that expires within a few seconds should result in en
 
     before(async() => {
       // allow our shield study add-on some time to send initial pings
-      await driver.sleep(7000);
+      await driver.sleep(10000);
       // collect sent pings
       studyPings = await utils.telemetry.getShieldPingsAfterTimestamp(
         driver,
