@@ -30,7 +30,7 @@ const baseStudySetup = {
     // Actually submit the pings to Telemetry. [default if omitted: false]
     send: true,
     // Marks pings with testing=true. Set flag to `true` for pings are meant to be seen by analysts [default if omitted: false]
-    removeTestingFlag: false,
+    removeTestingFlag: true,
     // Keep an internal telemetry archive. Useful for verifying payloads of Pioneer studies without risking actually sending any unencrypted payloads [default if omitted: false]
     internalTelemetryArchive: false,
   },
