@@ -13,7 +13,7 @@ const defaultConfig = {
     firefox: process.env.FIREFOX_BINARY || "nightly",
     browserConsole: true,
     startUrl: ["about:debugging"],
-    pref: ["shieldStudy.logLevel=All", "openwpm.logLevel=All", "devtools.netmonitor.persistlog=true"],
+    pref: ["shieldStudy.logLevel=All"],
   },
 };
 

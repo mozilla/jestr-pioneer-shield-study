@@ -11,14 +11,6 @@
   },
   "default_locale": "en-US",
   "experiment_apis": {
-    "openwpm": {
-      "schema": "./privileged/openwpm/schema.json",
-      "parent": {
-        "scopes": ["addon_parent"],
-        "script": "./privileged/openwpm/api.js",
-        "paths": [["openwpm"]]
-      }
-    },
     "study": {
       "schema": "./privileged/study/schema.json",
       "parent": {
@@ -39,7 +31,6 @@
   "background": {
     "scripts": [
       "studySetup.js",
-      "openwpmSetup.js",
       "feature.js",
       "background.js"
     ]
