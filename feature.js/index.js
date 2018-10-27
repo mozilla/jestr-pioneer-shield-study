@@ -7,7 +7,11 @@ import { storeInDb, initDb } from "./db";
 import * as dataReceiver from "./dataReceiver";
 import { BrowserActionDebugButton } from "./BrowserActionDebugButton";
 import { TabsMonitor } from "./TabsMonitor";
-import { CookieInstrument, JavascriptInstrument, HttpInstrument } from "openwpm-webext-instrumentation";
+import {
+  CookieInstrument,
+  JavascriptInstrument,
+  HttpInstrument,
+} from "openwpm-webext-instrumentation";
 
 class Feature {
   constructor() {}
@@ -66,21 +70,24 @@ class Feature {
   }
 
   startOpenWPMInstrumentation(config) {
-    if (config['cookie_instrument']) {
+    if (config["cookie_instrument"]) {
       dataReceiver.logDebug("Cookie instrumentation enabled");
       const cookieInstrument = new CookieInstrument(dataReceiver);
-      cookieInstrument.run(config['crawl_id']);
+      cookieInstrument.run(config["crawl_id"]);
     }
-    if (config['js_instrument']) {
+    if (config["js_instrument"]) {
       dataReceiver.logDebug("Javascript instrumentation enabled");
       const jsInstrument = new JavascriptInstrument(dataReceiver);
-      jsInstrument.run(config['crawl_id']);
+      jsInstrument.run(config["crawl_id"]);
     }
-    if (config['http_instrument']) {
+    if (config["http_instrument"]) {
       dataReceiver.logDebug("HTTP Instrumentation enabled");
       const httpInstrument = new HttpInstrument(dataReceiver);
-      httpInstrument.run(config['crawl_id'], config['save_javascript'],
-        config['save_all_content']);
+      httpInstrument.run(
+        config["crawl_id"],
+        config["save_javascript"],
+        config["save_all_content"],
+      );
     }
   }
 
@@ -90,7 +97,6 @@ class Feature {
   async cleanup() {
     await this.tabsMonitor.cleanup();
   }
-
 }
 
 // make an instance of the feature class available to background.js

@@ -5,7 +5,7 @@ const debugging = true;
 
 export const logInfo = async function(msg) {
   const level = "info";
-  const logEntry = {level, msg};
+  const logEntry = { level, msg };
   if (debugging) {
     console.log(logEntry);
   }
@@ -14,7 +14,7 @@ export const logInfo = async function(msg) {
 
 export const logDebug = async function(msg) {
   const level = "debug";
-  const logEntry = {level, msg};
+  const logEntry = { level, msg };
   if (debugging) {
     console.log(logEntry);
   }
@@ -23,7 +23,7 @@ export const logDebug = async function(msg) {
 
 export const logWarn = async function(msg) {
   const level = "warn";
-  const logEntry = {level, msg};
+  const logEntry = { level, msg };
   if (debugging) {
     console.warn(logEntry);
   }
@@ -32,7 +32,7 @@ export const logWarn = async function(msg) {
 
 export const logError = async function(msg) {
   const level = "error";
-  const logEntry = {level, msg};
+  const logEntry = { level, msg };
   if (debugging) {
     console.error(logEntry);
   }
@@ -41,7 +41,7 @@ export const logError = async function(msg) {
 
 export const logCritical = async function(msg) {
   const level = "error";
-  const logEntry = {level, msg};
+  const logEntry = { level, msg };
   if (debugging) {
     console.error(logEntry);
   }
@@ -50,7 +50,11 @@ export const logCritical = async function(msg) {
 
 export const saveRecord = async function(instrument, record) {
   if (debugging) {
-    console.log("OpenWPM dataReceiver saveRecord", instrument, JSON.stringify(record));
+    console.log(
+      "OpenWPM dataReceiver saveRecord",
+      instrument,
+      JSON.stringify(record),
+    );
     return;
   }
   await storeInDb(instrument, record);
@@ -58,8 +62,12 @@ export const saveRecord = async function(instrument, record) {
 
 export const saveContent = async function(content, contentHash) {
   if (debugging) {
-    console.log("OpenWPM dataReceiver saveRecord - contentHash, content.length:", contentHash, content.length);
+    console.log(
+      "OpenWPM dataReceiver saveRecord - contentHash, content.length:",
+      contentHash,
+      content.length,
+    );
     return;
   }
-  await storeInDb("savedContent", {content, contentHash});
+  await storeInDb("savedContent", { content, contentHash });
 };
