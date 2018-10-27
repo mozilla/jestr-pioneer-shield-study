@@ -28,7 +28,6 @@
 - (Create profile: <https://developer.mozilla.org/Firefox/Multiple_profiles>, or via some other method)
 - Navigate to _about:config_ and set the following preferences. (If a preference does not exist, create it be right-clicking in the white area and selecting New -> String)
 - Set `shieldStudy.logLevel` to `All`. This permits shield-add-on log output in browser console.
-- Set `extensions.button-icon-preference_shield_mozilla_org.test.variationName` to `kittens` (or any other study variation/branch to test specifically)
 - Go to [this study's tracking bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1496154) and install the latest add-on zip file
 
 ## Expected User Experience / Functionality
@@ -36,6 +35,8 @@
 No user interface elements are modified in this study.
 
 ### Do these tests
+
+Ordinary regression tests.
 
 ### Note: checking "sent Telemetry is correct"
 

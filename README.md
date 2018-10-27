@@ -13,10 +13,12 @@ See [TELEMETRY.md](./docs/TELEMETRY.md) for more details on what pings are sent 
 
 ## Analyzing data
 
-Telemetry pings are loaded into S3 and re:dash. Sample query:
-
-- [All pings](https://sql.telemetry.mozilla.org/queries/{#your-id}/source#table)
+Telemetry pings are loaded into the encrypted Pioneer pipeline.
 
 ## Improving this add-on
 
 See [DEV.md](./docs/DEV.md) for more details on how to work with this add-on as a developer.
+
+## History
+
+* Experiment v1: [launch bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1496154) - [phd](https://docs.google.com/document/d/10JEZ9WgAqqsveYGMgSs8xJMPxQoSExAXx5pf_Fya3sY/edit) - [code](https://github.com/motin/jestr-pioneer-shield-study)
