@@ -8,9 +8,7 @@
     "description": "Description of the extension."
   },
   "buttonTitle": {
-    "message":
-      "JESTr Pioneer Shield Study Debug (Click and check Browser Console)",
-    "description":
-      "Description shown on the toolbar when hovered. DO NOT localise 'Mozilla'."
+    "message": "JESTr Pioneer Shield Study Debug (Click and check Browser Console)",
+    "description": "Description shown on the toolbar when hovered. DO NOT localise 'Mozilla'."
   }
 }

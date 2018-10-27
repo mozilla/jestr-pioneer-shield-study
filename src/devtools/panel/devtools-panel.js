@@ -39,7 +39,7 @@ When the user clicks the 'jquery' button,
 evaluate the jQuery script.
 */
 const checkjQuery = "typeof jQuery != 'undefined'";
-document.getElementById("button_jquery").addEventListener("click", async() => {
+document.getElementById("button_jquery").addEventListener("click", async () => {
   try {
     console.log("get HAR");
     const harLog = await browser.devtools.network.getHAR();

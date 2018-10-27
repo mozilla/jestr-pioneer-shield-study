@@ -15,7 +15,7 @@ describe("basic shield utils integration", function() {
   let addonId;
 
   // runs ONCE
-  before(async() => {
+  before(async () => {
     beginTime = Date.now();
     driver = await utils.setupWebdriver.promiseSetupDriver(
       utils.FIREFOX_PREFERENCES,
@@ -23,17 +23,17 @@ describe("basic shield utils integration", function() {
     addonId = await utils.setupWebdriver.installAddon(driver);
   });
 
-  after(async() => {
+  after(async () => {
     driver.quit();
   });
 
-  beforeEach(async() => {});
-  afterEach(async() => {});
+  beforeEach(async () => {});
+  afterEach(async () => {});
 
   describe("should have sent the expected initiation telemetry", function() {
     let studyPings;
 
-    before(async() => {
+    before(async () => {
       // allow our shield study add-on some time to send initial pings
       await driver.sleep(2000);
       // collect sent pings
@@ -45,7 +45,7 @@ describe("basic shield utils integration", function() {
       // console.log("Pings report: ", utils.telemetry.pingsReport(studyPings));
     });
 
-    it("should have sent at least one shield telemetry ping", async() => {
+    it("should have sent at least one shield telemetry ping", async () => {
       assert(studyPings.length > 0, "at least one shield telemetry ping");
     });
 
@@ -77,7 +77,7 @@ describe("basic shield utils integration", function() {
   describe("should have sent exit telemetry upon uninstallation", function() {
     let studyPings;
 
-    before(async() => {
+    before(async () => {
       // we are only interested in pings from this point in time forward
       beginTime = Date.now();
       // uninstalling the add-on = opting out of the study = ending the study
@@ -93,7 +93,7 @@ describe("basic shield utils integration", function() {
       // console.log("Pings report: ", utils.telemetry.pingsReport(studyPings));
     });
 
-    it("should have sent at least one shield telemetry ping", async() => {
+    it("should have sent at least one shield telemetry ping", async () => {
       assert(studyPings.length > 0, "at least one shield telemetry ping");
     });
 
@@ -132,7 +132,7 @@ describe("setup of an already expired study should result in endStudy('expired')
   let beginTime;
 
   // runs ONCE
-  before(async() => {
+  before(async () => {
     beginTime = Date.now();
 
     // Set preference that simulates that the study has been running for a very long time already (0 = started running 1970-01-01 00:00:00)
@@ -147,17 +147,17 @@ describe("setup of an already expired study should result in endStudy('expired')
     await utils.setupWebdriver.installAddon(driver);
   });
 
-  after(async() => {
+  after(async () => {
     driver.quit();
   });
 
-  beforeEach(async() => {});
-  afterEach(async() => {});
+  beforeEach(async () => {});
+  afterEach(async () => {});
 
   describe("should have sent the expected telemetry", function() {
     let studyPings;
 
-    before(async() => {
+    before(async () => {
       // allow our shield study add-on some time to send initial pings
       await driver.sleep(2000);
       // collect sent pings
@@ -204,7 +204,7 @@ describe("setup of a study that expires within a few seconds should result in en
   let beginTime;
 
   // runs ONCE
-  before(async() => {
+  before(async () => {
     beginTime = Date.now();
 
     // Set preference that simulates that the study will expire after a few seconds
@@ -222,17 +222,17 @@ describe("setup of a study that expires within a few seconds should result in en
     await utils.setupWebdriver.installAddon(driver);
   });
 
-  after(async() => {
+  after(async () => {
     driver.quit();
   });
 
-  beforeEach(async() => {});
-  afterEach(async() => {});
+  beforeEach(async () => {});
+  afterEach(async () => {});
 
   describe("should not have sent exit telemetry before expiry", function() {
     let studyPings;
 
-    before(async() => {
+    before(async () => {
       // allow our shield study add-on some time to send initial pings
       await driver.sleep(2000);
       // collect sent pings
@@ -259,7 +259,7 @@ describe("setup of a study that expires within a few seconds should result in en
   describe("should have sent exit telemetry after expiry", function() {
     let studyPings;
 
-    before(async() => {
+    before(async () => {
       // allow our shield study add-on some time to send initial pings
       await driver.sleep(10000);
       // collect sent pings

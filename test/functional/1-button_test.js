@@ -29,7 +29,7 @@ describe("ui button (browserAction)", function() {
 
   let driver;
 
-  before(async() => {
+  before(async () => {
     driver = await utils.setupWebdriver.promiseSetupDriver(
       utils.FIREFOX_PREFERENCES,
     );
@@ -38,11 +38,11 @@ describe("ui button (browserAction)", function() {
     await driver.sleep(1000);
   });
 
-  after(async() => {
+  after(async () => {
     driver.quit();
   });
 
-  it("exists", async() => {
+  it("exists", async () => {
     const button = await promiseAddonButton(driver);
     return assert(typeof button === "object");
   });
@@ -59,13 +59,13 @@ describe("ui button (browserAction)", function() {
   });
   */
 
-  it("TBD responds to clicks", async() => {
+  it("TBD responds to clicks", async () => {
     const button = await promiseAddonButton(driver);
     button.click();
     assert(true);
   });
 
-  it("TBD sends correct telemetry", async() => {
+  it("TBD sends correct telemetry", async () => {
     assert(true);
   });
 });

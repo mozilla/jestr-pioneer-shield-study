@@ -6,22 +6,22 @@
 
 **Contents**
 
-* [Preparations](#preparations)
-* [Getting started](#getting-started)
-* [Details](#details)
-* [Loading the Web Extension in Firefox](#loading-the-web-extension-in-firefox)
-* [Seeing the add-on in action](#seeing-the-add-on-in-action)
-* [Automated testing](#automated-testing)
-  * [Unit tests](#unit-tests)
-  * [Functional tests](#functional-tests)
-* [Directory Structure and Files](#directory-structure-and-files)
-* [General Shield Study Engineering](#general-shield-study-engineering)
+- [Preparations](#preparations)
+- [Getting started](#getting-started)
+- [Details](#details)
+- [Loading the Web Extension in Firefox](#loading-the-web-extension-in-firefox)
+- [Seeing the add-on in action](#seeing-the-add-on-in-action)
+- [Automated testing](#automated-testing)
+  - [Unit tests](#unit-tests)
+  - [Functional tests](#functional-tests)
+- [Directory Structure and Files](#directory-structure-and-files)
+- [General Shield Study Engineering](#general-shield-study-engineering)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ### Preparations
 
-* Download Developer and Nightly versions of Firefox (only Developer/Nightly will allow bundled web extension experiments, and Developer is the default target for the automated tests)
+- Download Developer and Nightly versions of Firefox (only Developer/Nightly will allow bundled web extension experiments, and Developer is the default target for the automated tests)
 
 ## Getting started
 
@@ -89,9 +89,9 @@ npm run watch
 
 To load the extension manually instead, open (preferably) the [Developer Edition of Firefox](https://www.mozilla.org/firefox/developer/) and load the `.zip` using the following steps:
 
-* Navigate to _about:debugging_ in your URL bar
-* Select "Load Temporary Add-on"
-* Find and select the latest zip file you just built.
+- Navigate to _about:debugging_ in your URL bar
+- Select "Load Temporary Add-on"
+- Find and select the latest zip file you just built.
 
 ## Seeing the add-on in action
 
@@ -153,9 +153,9 @@ npm run test:func
 
 Runs functional tests using the Selenium driver, verifying the telemetry payload at Firefox startup and add-on installation in a clean profile, then does **optimistic testing** of the _commonest path_ though the study for a user:
 
-* prove the notification bar ui opens
-* _clicking on the left-most button presented_.
-* verifying that sent Telemetry is correct.
+- prove the notification bar ui opens
+- _clicking on the left-most button presented_.
+- verifying that sent Telemetry is correct.
 
 Code at [/test/functional/](/test/functional/).
 

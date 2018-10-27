@@ -6,18 +6,18 @@
 
 **Contents**
 
-* [Usual Firefox Telemetry is mostly unaffected](#usual-firefox-telemetry-is-mostly-unaffected)
-* [Study-specific endings](#study-specific-endings)
-* [`shield-study` pings (common to all shield-studies)](#shield-study-pings-common-to-all-shield-studies)
-* [`shield-study-addon` pings, specific to THIS study.](#shield-study-addon-pings-specific-to-this-study)
-* [Example sequence for a 'voted => not sure' interaction](#example-sequence-for-a-voted--not-sure-interaction)
+- [Usual Firefox Telemetry is mostly unaffected](#usual-firefox-telemetry-is-mostly-unaffected)
+- [Study-specific endings](#study-specific-endings)
+- [`shield-study` pings (common to all shield-studies)](#shield-study-pings-common-to-all-shield-studies)
+- [`shield-study-addon` pings, specific to THIS study.](#shield-study-addon-pings-specific-to-this-study)
+- [Example sequence for a 'voted => not sure' interaction](#example-sequence-for-a-voted--not-sure-interaction)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Usual Firefox Telemetry is mostly unaffected
 
-* No change: `main` and other pings are UNAFFECTED by this add-on, except that [shield-studies-addon-utils](https://github.com/mozilla/shield-studies-addon-utils) adds the add-on id as an active experiment in the telemetry environment.
-* Respects telemetry preferences. If user has disabled telemetry, no telemetry will be sent.
+- No change: `main` and other pings are UNAFFECTED by this add-on, except that [shield-studies-addon-utils](https://github.com/mozilla/shield-studies-addon-utils) adds the add-on id as an active experiment in the telemetry environment.
+- Respects telemetry preferences. If user has disabled telemetry, no telemetry will be sent.
 
 ## Study-specific endings
 
