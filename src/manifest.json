@@ -21,7 +21,12 @@
     }
   },
   "background": {
-    "scripts": ["studySetup.js", "feature.js", "background.js"]
+    "scripts": [
+      "studySetup.js",
+      "openwpmSetup.js",
+      "feature.js",
+      "background.js"
+    ]
   },
   "content_scripts": [
     {
