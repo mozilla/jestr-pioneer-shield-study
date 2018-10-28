@@ -21,19 +21,19 @@ export class TabsMonitor {
   }
 
   async handleActivated(activeInfo) {
-    console.log("handleActivated", activeInfo);
+    await browser.study.logger.log(["handleActivated", activeInfo]);
     // this.monitoredTabIds
   }
 
   async handleCreated(tab) {
-    console.log("handleCreated", tab);
+    await browser.study.logger.log(["handleCreated", tab]);
   }
 
   async handleUpdated(tabId, changeInfo, tab) {
-    console.log("handleUpdated", tabId, changeInfo, tab);
+    await browser.study.logger.log(["handleUpdated", tabId, changeInfo, tab]);
   }
 
   async handleRemoved(tabId, removeInfo) {
-    console.log("handleRemoved", tabId, removeInfo);
+    await browser.study.logger.log(["handleRemoved", tabId, removeInfo]);
   }
 }
