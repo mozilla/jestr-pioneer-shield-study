@@ -37,7 +37,7 @@ export const logCritical = async function(msg) {
 
 export const saveRecord = async function(instrument, record) {
   await browser.study.logger.log([
-    "dataReceiver - saveRecord - instrument, record",
+    "dataReceiver - saveRecord - instrument",
     instrument,
     // record, // Too large to send to console
   ]);

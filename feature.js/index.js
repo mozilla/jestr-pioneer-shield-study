@@ -20,6 +20,7 @@ class Feature {
 
     // perform something only during first run
     if (isFirstRun) {
+      // TODO: Cookie telemetry
     }
 
     // Start OpenWPM instrumentation

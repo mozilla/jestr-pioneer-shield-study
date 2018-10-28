@@ -4,7 +4,7 @@
     "description": "Name of the extension"
   },
   "extensionDescription": {
-    "message": "The jestr study helps Firefox developers understand the behavior of pages executing third-party Javascript resources that may be used to track your web browsing activity.",
+    "message": "The JESTr study helps Firefox developers understand the behavior of pages executing third-party Javascript resources that may be used to track your web browsing activity.",
     "description": "Description of the extension."
   }
 }
