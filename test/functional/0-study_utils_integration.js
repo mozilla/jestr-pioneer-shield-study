@@ -209,7 +209,7 @@ describe("setup of a study that expires within a few seconds should result in en
 
     // Set preference that simulates that the study will expire after a few seconds
     const msInOneDay = 60 * 60 * 24 * 1000;
-    const expiresInDays = 14; // Needs to be the same as in src/studySetup.js
+    const expiresInDays = 7 * 5; // 5 weeks // Needs to be the same as in src/studySetup.js
     const firstRunTimestamp = beginTime - msInOneDay * expiresInDays + 8000;
     const addonWidgetId = await utils.ui.addonWidgetId();
     const customPreferences = Object.assign({}, utils.FIREFOX_PREFERENCES);
