@@ -3,7 +3,6 @@
 
 ("use strict");
 
-import { storeInDb, initDb } from "./db";
 import * as dataReceiver from "./dataReceiver";
 import { TabsMonitor } from "./TabsMonitor";
 import {
@@ -17,18 +16,10 @@ class Feature {
 
   async configure(studyInfo) {
     const feature = this;
-    const { variation, isFirstRun } = studyInfo;
-
-    // start local study logging
-    await initDb();
-    await storeInDb("studyLog", { variation: variation.name, event: "run" });
+    const { isFirstRun } = studyInfo;
 
     // perform something only during first run
     if (isFirstRun) {
-      await storeInDb("studyLog", {
-        variation: variation.name,
-        event: "firstRun",
-      });
     }
 
     // Start OpenWPM instrumentation
@@ -38,10 +29,6 @@ class Feature {
     // Monitor tabs
     this.tabsMonitor = new TabsMonitor();
     this.tabsMonitor.configure(feature);
-  }
-
-  sendTelemetry(stringStringMap) {
-    browser.study.sendTelemetry(stringStringMap);
   }
 
   startOpenWPMInstrumentation(config) {
