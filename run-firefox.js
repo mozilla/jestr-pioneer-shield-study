@@ -7,18 +7,24 @@ process.on("unhandledRejection", r => console.error(r)); // eslint-disable-line 
 const utils = require("./test/functional/utils");
 
 const STUDY_TYPE = process.env.STUDY_TYPE || "pioneer";
+const LOG_LEVEL = process.env.LOG_LEVEL || "info";
 
-const run = async studyType => {
+const run = async (studyType, shieldStudyLogLevel) => {
   const driver = await utils.setupWebdriver.promiseSetupDriver(
     utils.FIREFOX_PREFERENCES,
   );
   const widgetId = utils.ui.makeWidgetId(
-    "shield-utils-test-addon@shield.mozilla.org",
+    "jestr-pioneer-shield-study@pioneer.mozilla.org",
   );
   await utils.preferences.set(
     driver,
     `extensions.${widgetId}.test.studyType`,
     studyType,
+  );
+  await utils.preferences.set(
+    driver,
+    `shieldStudy.logLevel`,
+    shieldStudyLogLevel,
   );
   if (studyType === "pioneer") {
     await utils.setupWebdriver.installPioneerOptInAddon(driver);
@@ -30,4 +36,4 @@ const run = async studyType => {
   driver.quit();
 };
 
-run(STUDY_TYPE);
+run(STUDY_TYPE, LOG_LEVEL);
