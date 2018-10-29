@@ -5,17 +5,14 @@ declare namespace browser.study {
   const logger: any;
 }
 
+export const logDebug = async function(msg) {
+  await browser.study.logger.debug(`OpenWPM DEBUG log message: ${msg}`);
+};
+
 export const logInfo = async function(msg) {
   const level = "info";
   const logEntry = { level, msg };
   await browser.study.logger.log(`OpenWPM INFO log message: ${msg}`);
-  await telemetrySender.submitTelemetryPayload("openwpmLog", logEntry);
-};
-
-export const logDebug = async function(msg) {
-  const level = "debug";
-  const logEntry = { level, msg };
-  await browser.study.logger.debug(`OpenWPM DEBUG log message: ${msg}`);
   await telemetrySender.submitTelemetryPayload("openwpmLog", logEntry);
 };
 
