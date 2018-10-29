@@ -4,7 +4,6 @@
 ("use strict");
 
 import * as dataReceiver from "./dataReceiver";
-import { TabsMonitor } from "./TabsMonitor";
 import {
   CookieInstrument,
   JavascriptInstrument,
@@ -26,10 +25,6 @@ class Feature {
     // Start OpenWPM instrumentation
     const openwpmConfig = await getOpenwpmConfig();
     this.startOpenWPMInstrumentation(openwpmConfig);
-
-    // Monitor tabs
-    this.tabsMonitor = new TabsMonitor();
-    this.tabsMonitor.configure(feature);
   }
 
   startOpenWPMInstrumentation(config) {
@@ -57,9 +52,7 @@ class Feature {
   /**
    * Called at end of study, and if the user disables the study or it gets uninstalled by other means.
    */
-  async cleanup() {
-    await this.tabsMonitor.cleanup();
-  }
+  async cleanup() {}
 }
 
 // make an instance of the feature class available to background.js
