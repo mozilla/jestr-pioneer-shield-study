@@ -1,5 +1,11 @@
 import { humanFileSize } from "./humanFileSize";
 
+declare namespace browser.study {
+  const logger: any;
+  function calculateTelemetryPingSize(payload: any);
+  function sendTelemetry(payload: any);
+}
+
 export class TelemetrySender {
   async submitTelemetryPayload(type, payload) {
     const studyTelemetryPacket = {

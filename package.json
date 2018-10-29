@@ -12,6 +12,7 @@
     "shield-studies-addon-utils": "github:motin/shield-studies-addon-utils#issues-142-and-128-support-pioneer-pipeline"
   },
   "devDependencies": {
+    "@types/firefox-webext-browser": "^63.0.0",
     "babel-core": "^6.26.3",
     "babel-plugin-istanbul": "^4.1.6",
     "babel-preset-env": "^1.7.0",

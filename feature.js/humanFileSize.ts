@@ -1,5 +1,5 @@
 // From https://stackoverflow.com/a/14919494/682317
-export const humanFileSize = (bytes, si) => {
+export const humanFileSize = (bytes, si = false) => {
   const thresh = si ? 1000 : 1024;
   if (Math.abs(bytes) < thresh) {
     return bytes + " B";

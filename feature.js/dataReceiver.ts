@@ -1,5 +1,9 @@
 import { telemetrySender } from "./telemetrySender";
 
+declare namespace browser.study {
+  const logger: any;
+}
+
 export const logInfo = async function(msg) {
   const level = "info";
   const logEntry = { level, msg };
