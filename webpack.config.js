@@ -5,7 +5,7 @@ const path = require("path");
 module.exports = {
   entry: {
     feature: "./feature.js/index.ts",
-    content: "./content.js/index.js",
+    content: "./content.js/index.ts",
   },
   output: {
     path: path.resolve(__dirname, "src"),
