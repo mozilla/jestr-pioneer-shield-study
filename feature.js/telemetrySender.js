@@ -1,8 +1,12 @@
 import { humanFileSize } from "./humanFileSize";
 
 export class TelemetrySender {
-  async submitTelemetryPayload(interfaceName, payload) {
-    const stringStringMap = this.createShieldPingPayload(payload);
+  async submitTelemetryPayload(type, payload) {
+    const studyTelemetryPacket = {
+      type,
+      payload,
+    };
+    const stringStringMap = this.createShieldPingPayload(studyTelemetryPacket);
     return this.sendTelemetry(stringStringMap);
   }
 
