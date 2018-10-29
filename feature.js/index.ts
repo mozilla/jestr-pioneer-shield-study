@@ -11,6 +11,10 @@ import {
 } from "openwpm-webext-instrumentation";
 
 class Feature {
+  private cookieInstrument;
+  private jsInstrument;
+  private httpInstrument;
+
   constructor() {}
 
   async configure(studyInfo) {
@@ -30,18 +34,18 @@ class Feature {
   startOpenWPMInstrumentation(config) {
     if (config["cookie_instrument"]) {
       dataReceiver.logDebug("Cookie instrumentation enabled");
-      const cookieInstrument = new CookieInstrument(dataReceiver);
-      cookieInstrument.run(config["crawl_id"]);
+      this.cookieInstrument = new CookieInstrument(dataReceiver);
+      this.cookieInstrument.run(config["crawl_id"]);
     }
     if (config["js_instrument"]) {
       dataReceiver.logDebug("Javascript instrumentation enabled");
-      const jsInstrument = new JavascriptInstrument(dataReceiver);
-      jsInstrument.run(config["crawl_id"]);
+      this.jsInstrument = new JavascriptInstrument(dataReceiver);
+      this.jsInstrument.run(config["crawl_id"]);
     }
     if (config["http_instrument"]) {
       dataReceiver.logDebug("HTTP Instrumentation enabled");
-      const httpInstrument = new HttpInstrument(dataReceiver);
-      httpInstrument.run(
+      this.httpInstrument = new HttpInstrument(dataReceiver);
+      this.httpInstrument.run(
         config["crawl_id"],
         config["save_javascript"],
         config["save_all_content"],
@@ -52,7 +56,17 @@ class Feature {
   /**
    * Called at end of study, and if the user disables the study or it gets uninstalled by other means.
    */
-  async cleanup() {}
+  async cleanup() {
+    if (this.cookieInstrument) {
+      await this.cookieInstrument.cleanup();
+    }
+    if (this.jsInstrument) {
+      await this.jsInstrument.cleanup();
+    }
+    if (this.httpInstrument) {
+      await this.httpInstrument.cleanup();
+    }
+  }
 }
 
 // make an instance of the feature class available to background.js
