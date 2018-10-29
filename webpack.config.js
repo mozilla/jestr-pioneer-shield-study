@@ -4,7 +4,7 @@ const path = require("path");
 
 module.exports = {
   entry: {
-    feature: "./feature.js/index.js",
+    feature: "./feature.js/index.ts",
     content: "./content.js/index.js",
   },
   output: {
@@ -12,6 +12,18 @@ module.exports = {
     filename: "[name].js",
     sourceMapFilename: "[name].js.map",
     pathinfo: true,
+  },
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        use: "ts-loader",
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: [".ts", ".js"],
   },
   mode: "development",
   devtool: "inline-source-map",

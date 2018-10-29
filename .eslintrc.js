@@ -23,6 +23,9 @@ module.exports = {
       },
     },
   ],
+
+  parser: "typescript-eslint-parser",
+
   parserOptions: {
     ecmaVersion: 8,
     sourceType: "module",
@@ -31,7 +34,7 @@ module.exports = {
       experimentalObjectRestSpread: true,
     },
   },
-  plugins: ["json", "mozilla"],
+  plugins: ["json", "mozilla", "typescript"],
   root: true,
   rules: {
     "babel/new-cap": "off",
@@ -53,11 +56,18 @@ module.exports = {
     ],
     "no-console": "warn",
     "no-shadow": "error",
-    "no-unused-vars": "error",
     "no-var": "error",
     "prefer-const": "warn",
     "prefer-spread": "error",
     semi: ["error", "always"],
     "valid-jsdoc": "warn",
+
+    "no-return-await": ["off"],
+
+    // The following rules do not work with Typescript
+    "no-undef": ["off"], // https://github.com/eslint/typescript-eslint-parser/issues/77
+    "no-unused-vars": ["off"], // https://github.com/eslint/typescript-eslint-parser/issues/77
+    "no-useless-constructor": ["off"], // https://github.com/eslint/typescript-eslint-parser/issues/77
+    "space-infix-ops": ["off"], // https://github.com/eslint/typescript-eslint-parser/issues/224
   },
 };

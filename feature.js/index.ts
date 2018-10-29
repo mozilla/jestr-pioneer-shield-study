@@ -63,4 +63,4 @@ class Feature {
 }
 
 // make an instance of the feature class available to background.js
-window.feature = new Feature();
+(window as any).feature = new Feature();
