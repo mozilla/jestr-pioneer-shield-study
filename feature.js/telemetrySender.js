@@ -1,3 +1,5 @@
+import { humanFileSize } from "./humanFileSize";
+
 export class TelemetrySender {
   async submitTelemetryPayload(interfaceName, payload) {
     const stringStringMap = this.createShieldPingPayload(payload);
@@ -27,6 +29,14 @@ export class TelemetrySender {
   }
 
   async sendTelemetry(stringStringMap) {
+    const calculatedPingSize = await browser.study.calculateTelemetryPingSize(
+      stringStringMap,
+    );
+    await browser.study.logger.info(
+      `Calculated size of ping which is being submitted: ${humanFileSize(
+        calculatedPingSize,
+      )}`,
+    );
     return browser.study.sendTelemetry(stringStringMap);
   }
 }
