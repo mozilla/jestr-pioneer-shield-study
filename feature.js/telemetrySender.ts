@@ -6,18 +6,56 @@ declare namespace browser.study {
   function sendTelemetry(payload: any);
 }
 
+import {
+  /*Navigation, */ HttpRequest,
+  HttpResponse,
+  HttpRedirect,
+  JavascriptOperation,
+  JavascriptCookieChange,
+} from "openwpm-webext-instrumentation";
+import { CapturedContent, LogEntry } from "./dataReceiver";
+
+type OpenWPMType =
+  | "navigations"
+  | "http_requests"
+  | "http_responses"
+  | "http_redirects"
+  | "javascript"
+  | "javascript_cookies"
+  | "openwpm_log"
+  | "openwpm_captured_content";
+type OpenWPMPayload /*Navigation |*/ =
+  | HttpRequest
+  | HttpResponse
+  | HttpRedirect
+  | JavascriptOperation
+  | JavascriptCookieChange
+  | LogEntry
+  | CapturedContent;
+
+interface StudyTelemetryPacket {
+  type: OpenWPMType;
+  payload: OpenWPMPayload;
+}
+
+interface StringStringMap {
+  [k: string]: string;
+}
+
 export class TelemetrySender {
   async submitTelemetryPayload(type, payload) {
-    const studyTelemetryPacket = {
+    const studyTelemetryPacket: StudyTelemetryPacket = {
       type,
       payload,
     };
-    const stringStringMap = this.createShieldPingPayload(studyTelemetryPacket);
+    const stringStringMap: StringStringMap = this.createShieldPingPayload(
+      studyTelemetryPacket,
+    );
     return this.sendTelemetry(stringStringMap);
   }
 
   // TODO: @glind: move to shield study utils?
-  createShieldPingPayload(shieldPingAttributes) {
+  createShieldPingPayload(shieldPingAttributes): StringStringMap {
     const shieldPingPayload = {};
 
     // shield ping attributes must be strings
@@ -38,14 +76,14 @@ export class TelemetrySender {
     return shieldPingPayload;
   }
 
-  async sendTelemetry(stringStringMap) {
+  async sendTelemetry(stringStringMap: StringStringMap) {
     const calculatedPingSize = await browser.study.calculateTelemetryPingSize(
       stringStringMap,
     );
     await browser.study.logger.info(
-      `Calculated size of ping which is being submitted: ${humanFileSize(
-        calculatedPingSize,
-      )}`,
+      `Calculated size of the ${
+        stringStringMap.type
+      } ping which is being submitted: ${humanFileSize(calculatedPingSize)}`,
     );
     return browser.study.sendTelemetry(stringStringMap);
   }
