@@ -36,6 +36,7 @@ type OpenWPMPayload /*Navigation |*/ =
 interface StudyTelemetryPacket {
   type: OpenWPMType;
   payload: OpenWPMPayload;
+  calculatedPingSize: string;
 }
 
 interface StringStringMap {
@@ -47,6 +48,7 @@ export class TelemetrySender {
     const studyTelemetryPacket: StudyTelemetryPacket = {
       type,
       payload,
+      calculatedPingSize: "0000000000", // Will be replace below with the real (approximate) calculated ping size
     };
     const stringStringMap: StringStringMap = this.createShieldPingPayload(
       studyTelemetryPacket,
@@ -85,6 +87,7 @@ export class TelemetrySender {
         stringStringMap.type
       } ping which is being submitted: ${humanFileSize(calculatedPingSize)}`,
     );
+    stringStringMap.calculatedPingSize = calculatedPingSize;
     return browser.study.sendTelemetry(stringStringMap);
   }
 }
