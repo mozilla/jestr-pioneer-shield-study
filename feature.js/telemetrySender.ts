@@ -82,11 +82,12 @@ export class TelemetrySender {
     const calculatedPingSize = await browser.study.calculateTelemetryPingSize(
       stringStringMap,
     );
-    await browser.study.logger.info(
-      `Calculated size of the ${
-        stringStringMap.type
-      } ping which is being submitted: ${humanFileSize(calculatedPingSize)}`,
-    );
+    const logMessage = `Calculated size of the ${stringStringMap.type} ping which is being submitted: ${humanFileSize(calculatedPingSize)}`;
+    if (calculatedPingSize > 1024*400) {
+      await browser.study.logger.log(logMessage);
+    } else {
+      await browser.study.logger.info(logMessage);
+    }
     stringStringMap.calculatedPingSize = calculatedPingSize;
     return browser.study.sendTelemetry(stringStringMap);
   }
