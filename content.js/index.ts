@@ -1,3 +1,6 @@
 import { injectJavascriptInstrumentPageScript } from "openwpm-webext-instrumentation";
 
-injectJavascriptInstrumentPageScript();
+// inject page script if not in incognito context
+if (!browser.extension.inIncognitoContext) {
+  injectJavascriptInstrumentPageScript();
+}
