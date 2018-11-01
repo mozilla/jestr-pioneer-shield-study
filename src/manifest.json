@@ -41,6 +41,7 @@
     "<all_urls>",
     "webRequest",
     "webRequestBlocking",
+    "webNavigation",
     "cookies",
     "management",
     "storage",

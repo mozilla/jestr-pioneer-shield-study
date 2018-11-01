@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "idb": "^2.0.4",
-    "openwpm-webext-instrumentation": "github:mozilla/openwpm-webext-instrumentation#refactor-legacy-sdk-code-to-webext-equivalent",
+    "openwpm-webext-instrumentation": "github:mozilla/openwpm-webext-instrumentation#several-enhancements",
     "shield-studies-addon-utils": "github:motin/shield-studies-addon-utils#issues-142-and-128-support-pioneer-pipeline"
   },
   "devDependencies": {

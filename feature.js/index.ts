@@ -8,9 +8,11 @@ import {
   CookieInstrument,
   JavascriptInstrument,
   HttpInstrument,
+  NavigationInstrument,
 } from "openwpm-webext-instrumentation";
 
 class Feature {
+  private navigationInstrument;
   private cookieInstrument;
   private jsInstrument;
   private httpInstrument;
@@ -32,6 +34,10 @@ class Feature {
   }
 
   startOpenWPMInstrumentation(config) {
+    if (config["navigation_instrument"]) {
+      this.navigationInstrument = new NavigationInstrument(dataReceiver);
+      this.navigationInstrument.run(config["crawl_id"]);
+    }
     if (config["cookie_instrument"]) {
       dataReceiver.logDebug("Cookie instrumentation enabled");
       this.cookieInstrument = new CookieInstrument(dataReceiver);
@@ -57,6 +63,9 @@ class Feature {
    * Called at end of study, and if the user disables the study or it gets uninstalled by other means.
    */
   async cleanup() {
+    if (this.navigationInstrument) {
+      await this.navigationInstrument.cleanup();
+    }
     if (this.cookieInstrument) {
       await this.cookieInstrument.cleanup();
     }

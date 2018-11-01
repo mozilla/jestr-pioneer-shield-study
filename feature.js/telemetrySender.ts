@@ -7,7 +7,8 @@ declare namespace browser.study {
 }
 
 import {
-  /*Navigation, */ HttpRequest,
+  Navigation,
+  HttpRequest,
   HttpResponse,
   HttpRedirect,
   JavascriptOperation,
@@ -24,7 +25,8 @@ type OpenWPMType =
   | "javascript_cookies"
   | "openwpm_log"
   | "openwpm_captured_content";
-type OpenWPMPayload /*Navigation |*/ =
+type OpenWPMPayload =
+  | Navigation
   | HttpRequest
   | HttpResponse
   | HttpRedirect

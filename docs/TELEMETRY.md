@@ -34,6 +34,7 @@ No user interaction is instrumented in this study.
 The add-on listens to navigation, web requests, cookie modifications and access to certain javascript API:s, as determined by [openwpm-webext-instrumentation](https://github.com/mozilla/openwpm-webext-instrumentation/tree/refactor-legacy-sdk-code-to-webext-equivalent) ([PR](https://github.com/mozilla/openwpm-webext-instrumentation/pull/7)), using the following configuration:
 
 ```
+  navigation_instrument: true,
   cookie_instrument: true,
   js_instrument: true,
   http_instrument: true,

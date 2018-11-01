@@ -14,6 +14,7 @@
  * Will be augmented by 'getOpenwpmConfig'
  */
 const baseOpenwpmConfig = {
+  navigation_instrument: true,
   cookie_instrument: true,
   js_instrument: true,
   http_instrument: true,
