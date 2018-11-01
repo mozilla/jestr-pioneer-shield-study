@@ -92,7 +92,7 @@ export class TelemetrySender {
     } else {
       await browser.study.logger.info(logMessage);
     }
-    stringStringMap.calculatedPingSize = calculatedPingSize;
+    stringStringMap.calculatedPingSize = String(calculatedPingSize);
     return browser.study.sendTelemetry(stringStringMap);
   }
 }
