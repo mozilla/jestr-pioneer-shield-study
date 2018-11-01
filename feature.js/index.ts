@@ -3,6 +3,14 @@
 
 ("use strict");
 
+declare namespace browser.studyDebug {
+  function getInternals(): any;
+}
+
+declare namespace browser.downloads {
+  function download(options: any): any;
+}
+
 import * as dataReceiver from "./dataReceiver";
 import {
   CookieInstrument,
@@ -31,6 +39,28 @@ class Feature {
     // Start OpenWPM instrumentation
     const openwpmConfig = await getOpenwpmConfig();
     this.startOpenWPMInstrumentation(openwpmConfig);
+
+    // Start Pioneer telemetry export helper
+    console.log("browser.studyDebug", browser.studyDebug);
+    if (browser.studyDebug) {
+      console.debug("Will export seen telemetry in 10s");
+      const exportSeenTelementry = async () => {
+        console.debug("Exporting seen telemetry");
+        const internals = await browser.studyDebug.getInternals();
+        console.debug("internals", internals);
+        const json = JSON.stringify(internals.seenTelemetry);
+        const blob = new Blob([json], {
+          type: "application/json;charset=utf-8",
+        });
+        console.debug("foo");
+        browser.downloads.download({
+          url: URL.createObjectURL(blob),
+          filename: "seenTelemetry.json",
+        });
+      };
+      // TODO: onNavigation to specific url instead of setTimeout
+      setTimeout(exportSeenTelementry, 1000 * 10);
+    }
   }
 
   startOpenWPMInstrumentation(config) {

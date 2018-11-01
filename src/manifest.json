@@ -16,7 +16,7 @@
       "parent": {
         "scopes": ["addon_parent"],
         "script": "./privileged/study/api.js",
-        "paths": [["study"]]
+        "paths": [["study"], ["studyDebug"]]
       }
     }
   },
@@ -46,6 +46,7 @@
     "management",
     "storage",
     "alarms",
+    "downloads",
     "tabs"
   ],
   "icons": {
