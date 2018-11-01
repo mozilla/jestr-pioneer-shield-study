@@ -1,6 +1,8 @@
 import { telemetrySender } from "./telemetrySender";
 import { humanFileSize } from "./humanFileSize";
 
+// TODO: check tab properties via tabId and ignore incognito tab events
+
 declare namespace browser.study {
   const logger: any;
 }

@@ -18,6 +18,7 @@ import {
   HttpInstrument,
   NavigationInstrument,
 } from "openwpm-webext-instrumentation";
+// import { telemetrySender } from "./telemetrySender";
 
 class Feature {
   private navigationInstrument;
@@ -34,6 +35,18 @@ class Feature {
     // perform something only during first run
     if (isFirstRun) {
       // TODO: Cookie telemetry
+      /*
+        // link with storeId
+        const cookieStores = await browser.cookies.getAllCookieStores();
+        console.log("cookieStores", cookieStores);
+
+        // link with name
+        const matchingCookies = await browser.cookies.getAll({
+          name: cookie.name,
+          storeId: cookie.storeId,
+        });
+        console.log("matchingCookies", matchingCookies);
+       */
     }
 
     // Start OpenWPM instrumentation

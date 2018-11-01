@@ -50,7 +50,7 @@ export class TelemetrySender {
     const studyTelemetryPacket: StudyTelemetryPacket = {
       type,
       payload,
-      calculatedPingSize: "0000000000", // Will be replace below with the real (approximate) calculated ping size
+      calculatedPingSize: "0000000000", // Will be replaced below with the real (approximate) calculated ping size
     };
     const stringStringMap: StringStringMap = this.createShieldPingPayload(
       studyTelemetryPacket,
