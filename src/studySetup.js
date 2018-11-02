@@ -98,6 +98,14 @@ async function cachingFirstRunShouldAllowEnroll(studySetup) {
     allowed = dataPermissions.pioneer;
   }
 
+  // Users with private browsing on autostart are not eligible
+  if (await browser.privacyContext.permanentPrivateBrowsing()) {
+    await browser.taarStudyMonitor.log(
+      "Permanent private browsing, exiting study",
+    );
+    allowed = false;
+  }
+
   // cache the answer
   await browser.storage.local.set({ allowedEnrollOnFirstRun: allowed });
   return allowed;

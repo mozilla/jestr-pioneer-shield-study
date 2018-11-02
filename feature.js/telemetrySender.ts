@@ -6,6 +6,10 @@ declare namespace browser.study {
   function sendTelemetry(payload: any);
 }
 
+declare namespace browser.privacyContext {
+  function aPrivateBrowserWindowIsOpen(): boolean;
+}
+
 import {
   Navigation,
   HttpRequest,
@@ -51,6 +55,10 @@ interface StringifiedStudyTelemetryPacket {
 
 export class TelemetrySender {
   async submitTelemetryPayload(type, payload) {
+    if (await browser.privacyContext.aPrivateBrowserWindowIsOpen()) {
+      // drop the ping - do not send any telemetry
+      return;
+    }
     const studyTelemetryPacket: StudyTelemetryPacket = {
       type,
       payload,

@@ -11,6 +11,14 @@
   },
   "default_locale": "en-US",
   "experiment_apis": {
+    "privacyContext": {
+      "schema": "./privileged/privacyContext/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "./privileged/privacyContext/api.js",
+        "paths": [["privacyContext"]]
+      }
+    },
     "study": {
       "schema": "./privileged/study/schema.json",
       "parent": {

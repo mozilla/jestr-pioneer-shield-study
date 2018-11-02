@@ -34,9 +34,26 @@
 
 No user interface elements are modified in this study.
 
-### Do these tests
+### Do these tests (in addition to ordinary regression tests)
 
-Ordinary regression tests.
+**Enabling of permanent private browsing before study has begun**
+
+- Enable permanent private browsing
+- Install the add-on as per above
+- Verify that the study does not run
+
+**Enabling of permanent private browsing after study has begun**
+
+- Install the add-on as per above
+- Verify that the study runs
+- Enable permanent private browsing
+- Verify that the study ends upon the subsequent restart of the browser
+
+**Private browsing mode test 1**
+
+- Install the add-on as per above
+- Verify that the study runs
+- Verify that no information is recorded and sent when private browsing mode is active
 
 ### Note: checking "sent Telemetry is correct"
 

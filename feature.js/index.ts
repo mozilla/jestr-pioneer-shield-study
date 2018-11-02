@@ -3,8 +3,18 @@
 
 ("use strict");
 
+declare namespace browser.study {
+  const logger: any;
+  function endStudy(_: any);
+}
+
 declare namespace browser.studyDebug {
   function getInternals(): any;
+}
+
+declare namespace browser.privacyContext {
+  function permanentPrivateBrowsing(): boolean;
+  function aPrivateBrowserWindowIsOpen(): boolean;
 }
 
 declare namespace browser.downloads {
@@ -31,6 +41,15 @@ class Feature {
   async configure(studyInfo) {
     const feature = this;
     const { isFirstRun } = studyInfo;
+
+    // Users with private browsing on autostart should not continue being in the study
+    if (await browser.privacyContext.permanentPrivateBrowsing()) {
+      await browser.study.logger.log(
+        "Permanent private browsing, exiting study",
+      );
+      await browser.study.endStudy({ reason: "ineligible" });
+      return;
+    }
 
     // perform something only during first run
     if (isFirstRun) {

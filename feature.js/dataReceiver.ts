@@ -1,10 +1,12 @@
 import { telemetrySender } from "./telemetrySender";
 import { humanFileSize } from "./humanFileSize";
 
-// TODO: check tab properties via tabId and ignore incognito tab events
-
 declare namespace browser.study {
   const logger: any;
+}
+
+declare namespace browser.privacyContext {
+  function aPrivateBrowserWindowIsOpen(): boolean;
 }
 
 export interface LogEntry {
@@ -17,11 +19,23 @@ export interface CapturedContent {
   contentHash: string;
 }
 
+const privateBrowsingActive = async () => {
+  if (await browser.privacyContext.aPrivateBrowserWindowIsOpen()) {
+    return true;
+  }
+};
+
 export const logDebug = async function(msg) {
+  if (await privateBrowsingActive()) {
+    return;
+  }
   await browser.study.logger.debug(`OpenWPM DEBUG log message: ${msg}`);
 };
 
 export const logInfo = async function(msg) {
+  if (await privateBrowsingActive()) {
+    return;
+  }
   const level = "info";
   const logEntry: LogEntry = { level, msg };
   await browser.study.logger.log(`OpenWPM INFO log message: ${msg}`);
@@ -29,6 +43,9 @@ export const logInfo = async function(msg) {
 };
 
 export const logWarn = async function(msg) {
+  if (await privateBrowsingActive()) {
+    return;
+  }
   const level = "warn";
   const logEntry: LogEntry = { level, msg };
   await browser.study.logger.warn(`OpenWPM WARN log message: ${msg}`);
@@ -36,6 +53,9 @@ export const logWarn = async function(msg) {
 };
 
 export const logError = async function(msg) {
+  if (await privateBrowsingActive()) {
+    return;
+  }
   const level = "error";
   const logEntry: LogEntry = { level, msg };
   await browser.study.logger.error(`OpenWPM ERROR log message: ${msg}`);
@@ -43,6 +63,9 @@ export const logError = async function(msg) {
 };
 
 export const logCritical = async function(msg) {
+  if (await privateBrowsingActive()) {
+    return;
+  }
   const level = "critical";
   const logEntry: LogEntry = { level, msg };
   await browser.study.logger.error(`OpenWPM CRITICAL log message: ${msg}`);
@@ -50,6 +73,9 @@ export const logCritical = async function(msg) {
 };
 
 export const saveRecord = async function(instrument, record) {
+  if (record.incognito !== 0 || (await privateBrowsingActive())) {
+    return;
+  }
   await browser.study.logger.log(
     `OpenWPM ${instrument} instrumentation package received`,
   );
@@ -57,6 +83,9 @@ export const saveRecord = async function(instrument, record) {
 };
 
 export const saveContent = async function(content, contentHash) {
+  if (await privateBrowsingActive()) {
+    return;
+  }
   await browser.study.logger.log(
     `OpenWPM saveContent packet of approximate size ${humanFileSize(
       content.length,
