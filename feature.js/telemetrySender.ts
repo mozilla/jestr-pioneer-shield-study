@@ -39,10 +39,14 @@ interface StudyTelemetryPacket {
   type: OpenWPMType;
   payload: OpenWPMPayload;
   calculatedPingSize: string;
+  calculatedPingSizeOverThreshold: number;
 }
 
-interface StringStringMap {
-  [k: string]: string;
+interface StringifiedStudyTelemetryPacket {
+  type?: string;
+  payload?: string;
+  calculatedPingSize?: string;
+  calculatedPingSizeOverThreshold?: string;
 }
 
 export class TelemetrySender {
@@ -51,48 +55,47 @@ export class TelemetrySender {
       type,
       payload,
       calculatedPingSize: "0000000000", // Will be replaced below with the real (approximate) calculated ping size
+      calculatedPingSizeOverThreshold: 0,
     };
-    const stringStringMap: StringStringMap = this.createShieldPingPayload(
+    const stringStringMap: StringifiedStudyTelemetryPacket = this.stringifyPayload(
       studyTelemetryPacket,
     );
     return this.sendTelemetry(stringStringMap);
   }
 
-  // TODO: @glind: move to shield study utils?
-  createShieldPingPayload(shieldPingAttributes): StringStringMap {
-    const shieldPingPayload = {};
-
-    // shield ping attributes must be strings
-    for (const attribute in shieldPingAttributes) {
-      let attributeValue = shieldPingAttributes[attribute];
-      if (typeof attributeValue === "undefined") {
-        attributeValue = "null";
-      }
-      if (typeof attributeValue === "object") {
-        attributeValue = JSON.stringify(attributeValue);
-      }
-      if (typeof attributeValue !== "string") {
-        attributeValue = String(attributeValue);
-      }
-      shieldPingPayload[attribute] = attributeValue;
-    }
-
-    return shieldPingPayload;
+  stringifyPayload(
+    studyTelemetryPacket: StudyTelemetryPacket,
+  ): StringifiedStudyTelemetryPacket {
+    return {
+      type: JSON.stringify(studyTelemetryPacket.type),
+      payload: JSON.stringify(studyTelemetryPacket.payload),
+      calculatedPingSize: JSON.stringify(
+        studyTelemetryPacket.calculatedPingSize,
+      ),
+      calculatedPingSizeOverThreshold: JSON.stringify(
+        studyTelemetryPacket.calculatedPingSizeOverThreshold,
+      ),
+    };
   }
 
-  async sendTelemetry(stringStringMap: StringStringMap) {
+  async sendTelemetry(stringStringMap: StringifiedStudyTelemetryPacket) {
     const calculatedPingSize = await browser.study.calculateTelemetryPingSize(
       stringStringMap,
     );
+    stringStringMap.calculatedPingSize = String(calculatedPingSize);
     const logMessage = `Calculated size of the ${
       stringStringMap.type
     } ping which is being submitted: ${humanFileSize(calculatedPingSize)}`;
-    if (calculatedPingSize > 1024 * 400) {
+    if (calculatedPingSize > 1024 * 500) {
       await browser.study.logger.log(logMessage);
+      delete stringStringMap.payload;
+      stringStringMap.calculatedPingSizeOverThreshold = "1";
+      await browser.study.logger.log(
+        "Calculated ping size over 500kb - OpenWPM payload dropped",
+      );
     } else {
       await browser.study.logger.info(logMessage);
     }
-    stringStringMap.calculatedPingSize = String(calculatedPingSize);
     return browser.study.sendTelemetry(stringStringMap);
   }
 }
