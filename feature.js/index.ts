@@ -73,6 +73,7 @@ class Feature {
     this.startOpenWPMInstrumentation(openwpmConfig);
 
     // Start Pioneer telemetry export helper
+    /*
     console.log("browser.studyDebug", browser.studyDebug);
     if (browser.studyDebug) {
       console.debug("Will export seen telemetry in 10s");
@@ -93,6 +94,7 @@ class Feature {
       // TODO: onNavigation to specific url instead of setTimeout
       setTimeout(exportSeenTelementry, 1000 * 10);
     }
+    */
   }
 
   startOpenWPMInstrumentation(config) {
