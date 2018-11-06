@@ -44,6 +44,7 @@ interface StudyTelemetryPacket {
   payload: OpenWPMPayload;
   calculatedPingSize: string;
   calculatedPingSizeOverThreshold: number;
+  tabActiveDwellTime?: number;
 }
 
 interface StringifiedStudyTelemetryPacket {
@@ -51,10 +52,11 @@ interface StringifiedStudyTelemetryPacket {
   payload?: string;
   calculatedPingSize?: string;
   calculatedPingSizeOverThreshold?: string;
+  tabActiveDwellTime?: string;
 }
 
 export class TelemetrySender {
-  async submitTelemetryPayload(type, payload) {
+  async submitOpenWPMPacketToTelemetry(type, payload, tabActiveDwellTime: number = null) {
     if (await browser.privacyContext.aPrivateBrowserWindowIsOpen()) {
       // drop the ping - do not send any telemetry
       return;
@@ -64,6 +66,7 @@ export class TelemetrySender {
       payload,
       calculatedPingSize: "0000000000", // Will be replaced below with the real (approximate) calculated ping size
       calculatedPingSizeOverThreshold: 0,
+      tabActiveDwellTime: tabActiveDwellTime,
     };
     const stringStringMap: StringifiedStudyTelemetryPacket = this.stringifyPayload(
       studyTelemetryPacket,
@@ -83,6 +86,7 @@ export class TelemetrySender {
       calculatedPingSizeOverThreshold: JSON.stringify(
         studyTelemetryPacket.calculatedPingSizeOverThreshold,
       ),
+      tabActiveDwellTime: JSON.stringify(studyTelemetryPacket.tabActiveDwellTime),
     };
   }
 
