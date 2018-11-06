@@ -1,6 +1,6 @@
 import { telemetrySender } from "./telemetrySender";
 import { humanFileSize } from "./humanFileSize";
-import {ActiveTabDwellTimeMonitor} from "./ActiveTabDwellTimeMonitor";
+import { ActiveTabDwellTimeMonitor } from "./ActiveTabDwellTimeMonitor";
 
 // Start active dwell time monitor
 // (used to annotate received tab-relevant data packets)
@@ -78,7 +78,7 @@ export const logCritical = async function(msg) {
 };
 
 export const saveRecord = async function(instrument, record) {
-  if (record.incognito !== 0 || (await privateBrowsingActive())) {
+  if ((instrument !== "javascript_cookies" && record.incognito !== 0) || (await privateBrowsingActive())) {
     return;
   }
   await browser.study.logger.log(
@@ -87,9 +87,15 @@ export const saveRecord = async function(instrument, record) {
   // Annotate tab active dwell time
   let tabActiveDwellTime;
   if (record.tab_id > 0) {
-    tabActiveDwellTime = activeTabDwellTimeMonitor.getTabActiveDwellTime(record.tab_id);
+    tabActiveDwellTime = activeTabDwellTimeMonitor.getTabActiveDwellTime(
+      record.tab_id,
+    );
   }
-  await telemetrySender.submitOpenWPMPacketToTelemetry(instrument, record, tabActiveDwellTime);
+  await telemetrySender.submitOpenWPMPacketToTelemetry(
+    instrument,
+    record,
+    tabActiveDwellTime,
+  );
 };
 
 export const saveContent = async function(content, contentHash) {

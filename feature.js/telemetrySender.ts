@@ -56,7 +56,11 @@ interface StringifiedStudyTelemetryPacket {
 }
 
 export class TelemetrySender {
-  async submitOpenWPMPacketToTelemetry(type, payload, tabActiveDwellTime: number = null) {
+  async submitOpenWPMPacketToTelemetry(
+    type,
+    payload,
+    tabActiveDwellTime: number = null,
+  ) {
     if (await browser.privacyContext.aPrivateBrowserWindowIsOpen()) {
       // drop the ping - do not send any telemetry
       return;
@@ -86,7 +90,9 @@ export class TelemetrySender {
       calculatedPingSizeOverThreshold: JSON.stringify(
         studyTelemetryPacket.calculatedPingSizeOverThreshold,
       ),
-      tabActiveDwellTime: JSON.stringify(studyTelemetryPacket.tabActiveDwellTime),
+      tabActiveDwellTime: JSON.stringify(
+        studyTelemetryPacket.tabActiveDwellTime,
+      ),
     };
   }
 

@@ -92,7 +92,8 @@ class Feature {
       dataReceiver.logDebug("Cookie instrumentation enabled");
       this.cookieInstrument = new CookieInstrument(dataReceiver);
       if (isFirstRun) {
-        this.cookieInstrument.saveAllCookies(config["crawl_id"]);
+        await this.cookieInstrument.saveAllCookies(config["crawl_id"]);
+        dataReceiver.logDebug("Cookies saved (first run)");
       }
       this.cookieInstrument.run(config["crawl_id"]);
     }
@@ -121,6 +122,7 @@ class Feature {
     }
     if (this.cookieInstrument) {
       await this.cookieInstrument.saveAllCookies(this.openwpmCrawlId);
+      dataReceiver.logDebug("Cookies saved (study end)");
       await this.cookieInstrument.cleanup();
     }
     if (this.jsInstrument) {
