@@ -35,6 +35,7 @@ class Feature {
   private cookieInstrument;
   private jsInstrument;
   private httpInstrument;
+  private openwpmCrawlId;
 
   constructor() {}
 
@@ -51,26 +52,9 @@ class Feature {
       return;
     }
 
-    // perform something only during first run
-    if (isFirstRun) {
-      // TODO: Cookie telemetry
-      /*
-        // link with storeId
-        const cookieStores = await browser.cookies.getAllCookieStores();
-        console.log("cookieStores", cookieStores);
-
-        // link with name
-        const matchingCookies = await browser.cookies.getAll({
-          name: cookie.name,
-          storeId: cookie.storeId,
-        });
-        console.log("matchingCookies", matchingCookies);
-       */
-    }
-
     // Start OpenWPM instrumentation
     const openwpmConfig = await getOpenwpmConfig();
-    this.startOpenWPMInstrumentation(openwpmConfig);
+    await this.startOpenWPMInstrumentation(openwpmConfig, isFirstRun);
 
     // Start Pioneer telemetry export helper
     /*
@@ -97,7 +81,8 @@ class Feature {
     */
   }
 
-  startOpenWPMInstrumentation(config) {
+  async startOpenWPMInstrumentation(config, isFirstRun) {
+    this.openwpmCrawlId = config["crawl_id"];
     if (config["navigation_instrument"]) {
       this.navigationInstrument = new NavigationInstrument(dataReceiver);
       this.navigationInstrument.run(config["crawl_id"]);
@@ -105,6 +90,9 @@ class Feature {
     if (config["cookie_instrument"]) {
       dataReceiver.logDebug("Cookie instrumentation enabled");
       this.cookieInstrument = new CookieInstrument(dataReceiver);
+      if (isFirstRun) {
+        this.cookieInstrument.saveAllCookies(config["crawl_id"]);
+      }
       this.cookieInstrument.run(config["crawl_id"]);
     }
     if (config["js_instrument"]) {
@@ -131,6 +119,7 @@ class Feature {
       await this.navigationInstrument.cleanup();
     }
     if (this.cookieInstrument) {
+      await this.cookieInstrument.saveAllCookies(this.openwpmCrawlId);
       await this.cookieInstrument.cleanup();
     }
     if (this.jsInstrument) {

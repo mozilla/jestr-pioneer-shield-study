@@ -16,7 +16,7 @@ import {
   HttpResponse,
   HttpRedirect,
   JavascriptOperation,
-  JavascriptCookieChange,
+  JavascriptCookieRecord,
 } from "openwpm-webext-instrumentation";
 import { CapturedContent, LogEntry } from "./dataReceiver";
 
@@ -35,7 +35,7 @@ type OpenWPMPayload =
   | HttpResponse
   | HttpRedirect
   | JavascriptOperation
-  | JavascriptCookieChange
+  | JavascriptCookieRecord
   | LogEntry
   | CapturedContent;
 
