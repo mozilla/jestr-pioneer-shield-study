@@ -91,10 +91,12 @@ class Feature {
     if (config["cookie_instrument"]) {
       dataReceiver.logDebug("Cookie instrumentation enabled");
       this.cookieInstrument = new CookieInstrument(dataReceiver);
+      /*
       if (isFirstRun) {
         await this.cookieInstrument.saveAllCookies(config["crawl_id"]);
         dataReceiver.logDebug("Cookies saved (first run)");
       }
+      */
       this.cookieInstrument.run(config["crawl_id"]);
     }
     if (config["js_instrument"]) {
@@ -121,8 +123,10 @@ class Feature {
       await this.navigationInstrument.cleanup();
     }
     if (this.cookieInstrument) {
+      /*
       await this.cookieInstrument.saveAllCookies(this.openwpmCrawlId);
       dataReceiver.logDebug("Cookies saved (study end)");
+      */
       await this.cookieInstrument.cleanup();
     }
     if (this.jsInstrument) {
