@@ -30,6 +30,7 @@
 - Set `shieldStudy.logLevel` to `info`. This permits shield-add-on log output in browser console.
 - Make sure that the [Firefox Pioneer Add-on](https://addons.mozilla.org/en-US/firefox/addon/firefox-pioneer/) is installed
 - Go to [this study's tracking bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1496154) and install the latest add-on zip file
+- (If you are installing an unsigned version of the add-on, you need to set `extensions.legacy.enabled` to `true` before installing the add-on)
 
 ## Expected User Experience / Functionality
 
