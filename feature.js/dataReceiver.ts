@@ -78,7 +78,10 @@ export const logCritical = async function(msg) {
 };
 
 export const saveRecord = async function(instrument, record) {
-  if ((instrument !== "javascript_cookies" && record.incognito !== 0) || (await privateBrowsingActive())) {
+  if (
+    (instrument !== "javascript_cookies" && record.incognito !== 0) ||
+    (await privateBrowsingActive())
+  ) {
     return;
   }
   await browser.study.logger.log(
