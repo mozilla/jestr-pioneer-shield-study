@@ -72,10 +72,13 @@ export class TelemetrySender {
       calculatedPingSizeOverThreshold: 0,
       tabActiveDwellTime: tabActiveDwellTime,
     };
-    const stringStringMap: StringifiedStudyTelemetryPacket = this.stringifyPayload(
+    const stringifiedStudyTelemetryPacket: StringifiedStudyTelemetryPacket = this.stringifyPayload(
       studyTelemetryPacket,
     );
-    return this.sendTelemetry(stringStringMap);
+    const acceptableStringifiedStudyTelemetryPacket = await this.ensurePingSizeUnderThreshold(
+      stringifiedStudyTelemetryPacket,
+    );
+    return this.sendTelemetry(acceptableStringifiedStudyTelemetryPacket);
   }
 
   stringifyPayload(
@@ -96,25 +99,37 @@ export class TelemetrySender {
     };
   }
 
-  async sendTelemetry(stringStringMap: StringifiedStudyTelemetryPacket) {
+  async ensurePingSizeUnderThreshold(
+    stringifiedStudyTelemetryPacket: StringifiedStudyTelemetryPacket,
+  ) {
     const calculatedPingSize = await browser.study.calculateTelemetryPingSize(
-      stringStringMap,
+      stringifiedStudyTelemetryPacket,
     );
-    stringStringMap.calculatedPingSize = String(calculatedPingSize);
+    stringifiedStudyTelemetryPacket.calculatedPingSize = String(
+      calculatedPingSize,
+    );
     const logMessage = `Calculated size of the ${
-      stringStringMap.type
+      stringifiedStudyTelemetryPacket.type
     } ping which is being submitted: ${humanFileSize(calculatedPingSize)}`;
     if (calculatedPingSize > 1024 * 500) {
       await browser.study.logger.log(logMessage);
-      delete stringStringMap.payload;
-      stringStringMap.calculatedPingSizeOverThreshold = "1";
+      delete stringifiedStudyTelemetryPacket.payload;
+      stringifiedStudyTelemetryPacket.calculatedPingSizeOverThreshold = "1";
       await browser.study.logger.log(
         "Calculated ping size over 500kb - OpenWPM payload dropped",
       );
     } else {
       await browser.study.logger.info(logMessage);
     }
-    return browser.study.sendTelemetry(stringStringMap);
+    return stringifiedStudyTelemetryPacket;
+  }
+
+  async sendTelemetry(
+    acceptableStringifiedStudyTelemetryPacket: StringifiedStudyTelemetryPacket,
+  ) {
+    return browser.study.sendTelemetry(
+      acceptableStringifiedStudyTelemetryPacket,
+    );
   }
 }
 
