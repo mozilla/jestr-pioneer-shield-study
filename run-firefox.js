@@ -47,6 +47,11 @@ const run = async studyType => {
     );
   }
   await utils.preferences.set(driver, `shieldStudy.logLevel`, LOG_LEVEL);
+  await utils.preferences.set(
+    driver,
+    `browser.ctrlTab.recentlyUsedOrder`,
+    false,
+  );
   if (studyType === "pioneer") {
     await utils.setupWebdriver.installPioneerOptInAddon(driver);
   }
