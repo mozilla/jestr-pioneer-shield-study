@@ -48,6 +48,7 @@ class StudyLifeCycleHandler {
      */
     browser.study.onEndStudy.addListener(this.handleStudyEnding.bind(this));
     browser.study.onReady.addListener(this.enableFeature.bind(this));
+    this.expirationAlarmName = `${browser.runtime.id}:studyExpiration`;
   }
 
   /**
@@ -61,6 +62,7 @@ class StudyLifeCycleHandler {
    */
   async cleanup() {
     await browser.storage.local.clear();
+    await browser.alarms.clear(this.expirationAlarmName);
     await feature.cleanup();
   }
 
@@ -78,7 +80,7 @@ class StudyLifeCycleHandler {
     await browser.study.logger.log(["Enabling experiment", studyInfo]);
     const { delayInMinutes } = studyInfo;
     if (delayInMinutes !== undefined) {
-      const alarmName = `${browser.runtime.id}:studyExpiration`;
+      const alarmName = this.expirationAlarmName;
       const alarmListener = async alarm => {
         if (alarm.name === alarmName) {
           browser.alarms.onAlarm.removeListener(alarmListener);
