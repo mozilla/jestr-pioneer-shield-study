@@ -135,6 +135,9 @@ class Feature {
     if (this.httpInstrument) {
       await this.httpInstrument.cleanup();
     }
+    if (dataReceiver.activeTabDwellTimeMonitor) {
+      dataReceiver.activeTabDwellTimeMonitor.cleanup();
+    }
   }
 }
 

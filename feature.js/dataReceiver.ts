@@ -2,7 +2,7 @@ import { telemetrySender } from "./telemetrySender";
 import { humanFileSize } from "./humanFileSize";
 import { ActiveTabDwellTimeMonitor } from "./ActiveTabDwellTimeMonitor";
 
-// Start active dwell time monitor
+// Export active dwell time monitor singleton
 // (used to annotate received tab-relevant data packets)
 export const activeTabDwellTimeMonitor = new ActiveTabDwellTimeMonitor();
 
