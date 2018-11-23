@@ -20,7 +20,7 @@ const baseOpenwpmConfig = {
   http_instrument: true,
   save_javascript: false,
   save_all_content: false,
-  crawl_id: "pioneer",
+  crawl_id: 0,
 };
 
 /**

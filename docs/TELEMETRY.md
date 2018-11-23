@@ -31,7 +31,7 @@ This study has no surveys and as such has NO SPECIFIC ENDINGS.
 
 No user interaction is instrumented in this study.
 
-The add-on listens to navigation, web requests, cookie modifications and access to certain javascript API:s, as determined by [openwpm-webext-instrumentation](https://github.com/mozilla/openwpm-webext-instrumentation/tree/refactor-legacy-sdk-code-to-webext-equivalent) ([PR](https://github.com/mozilla/openwpm-webext-instrumentation/pull/7)), using the following configuration:
+The add-on listens to navigation, web requests, cookie modifications and access to certain javascript API:s, as determined by [openwpm-webext-instrumentation](https://github.com/mozilla/openwpm-webext-instrumentation/tree/enhancements-batch-2) ([PR](https://github.com/mozilla/openwpm-webext-instrumentation/pull/31)), using the following configuration:
 
 ```
   navigation_instrument: true,
@@ -42,4 +42,4 @@ The add-on listens to navigation, web requests, cookie modifications and access 
   save_all_content: false,
 ```
 
-The packets received from the instrumentation are in turn encapsulated in objects of type [`StudyTelemetryPacket`](../feature.js/telemetrySender.ts) and sent as encrypted telemetry packages using [shield-studies-addon-utils](https://github.com/mozilla/shield-studies-addon-utils) ([PR](https://github.com/mozilla/shield-studies-addon-utils/pull/263)).
+The packets received from the instrumentation are in turn encapsulated in objects of type [`StudyTelemetryPacket`](../feature.js/StudyPayloadPreprocessor.ts) and sent as encrypted telemetry packages using [shield-studies-addon-utils](https://github.com/mozilla/shield-studies-addon-utils) ([PR](https://github.com/mozilla/shield-studies-addon-utils/pull/263)).

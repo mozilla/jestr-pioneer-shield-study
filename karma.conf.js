@@ -40,6 +40,7 @@ module.exports = function(config) {
       "node_modules/sinon/pkg/sinon.js",
       "node_modules/sinon-chrome/bundle/sinon-chrome.min.js",
       "feature.js/index.ts",
+      "feature.js/*.spec.ts",
       "test/unit/*.spec.js",
     ],
     webpack: webpackConfig,

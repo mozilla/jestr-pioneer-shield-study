@@ -1,10 +1,17 @@
-import { telemetrySender } from "./telemetrySender";
 import { humanFileSize } from "./humanFileSize";
 import { ActiveTabDwellTimeMonitor } from "./ActiveTabDwellTimeMonitor";
+import { StudyPayloadPreprocessor } from "./StudyPayloadPreprocessor";
+import { TelemetrySender } from "./TelemetrySender";
 
 // Export active dwell time monitor singleton
 // (used to annotate received tab-relevant data packets)
 export const activeTabDwellTimeMonitor = new ActiveTabDwellTimeMonitor();
+
+// Setup study payload processor singleton
+export const studyPayloadPreprocessor = new StudyPayloadPreprocessor();
+
+// Setup telemetry sender singleton
+const telemetrySender = new TelemetrySender(studyPayloadPreprocessor);
 
 declare namespace browser.study {
   const logger: any;
@@ -44,7 +51,7 @@ export const logInfo = async function(msg) {
   const level = "info";
   const logEntry: LogEntry = { level, msg };
   await browser.study.logger.log(`OpenWPM INFO log message: ${msg}`);
-  await telemetrySender.submitOpenWPMPacketToTelemetry("openwpm_log", logEntry);
+  await telemetrySender.submitOpenWPMPayload("openwpm_log", logEntry);
 };
 
 export const logWarn = async function(msg) {
@@ -54,7 +61,7 @@ export const logWarn = async function(msg) {
   const level = "warn";
   const logEntry: LogEntry = { level, msg };
   await browser.study.logger.warn(`OpenWPM WARN log message: ${msg}`);
-  await telemetrySender.submitOpenWPMPacketToTelemetry("openwpm_log", logEntry);
+  await telemetrySender.submitOpenWPMPayload("openwpm_log", logEntry);
 };
 
 export const logError = async function(msg) {
@@ -64,7 +71,7 @@ export const logError = async function(msg) {
   const level = "error";
   const logEntry: LogEntry = { level, msg };
   await browser.study.logger.error(`OpenWPM ERROR log message: ${msg}`);
-  await telemetrySender.submitOpenWPMPacketToTelemetry("openwpm_log", logEntry);
+  await telemetrySender.submitOpenWPMPayload("openwpm_log", logEntry);
 };
 
 export const logCritical = async function(msg) {
@@ -74,7 +81,7 @@ export const logCritical = async function(msg) {
   const level = "critical";
   const logEntry: LogEntry = { level, msg };
   await browser.study.logger.error(`OpenWPM CRITICAL log message: ${msg}`);
-  await telemetrySender.submitOpenWPMPacketToTelemetry("openwpm_log", logEntry);
+  await telemetrySender.submitOpenWPMPayload("openwpm_log", logEntry);
 };
 
 export const saveRecord = async function(instrument, record) {
@@ -94,7 +101,7 @@ export const saveRecord = async function(instrument, record) {
       record.tab_id,
     );
   }
-  await telemetrySender.submitOpenWPMPacketToTelemetry(
+  await telemetrySender.submitOpenWPMPayload(
     instrument,
     record,
     tabActiveDwellTime,
@@ -114,7 +121,7 @@ export const saveContent = async function(content, contentHash) {
     content,
     contentHash,
   };
-  await telemetrySender.submitOpenWPMPacketToTelemetry(
+  await telemetrySender.submitOpenWPMPayload(
     "openwpm_captured_content",
     capturedContent,
   );

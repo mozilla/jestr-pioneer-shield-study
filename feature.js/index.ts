@@ -83,6 +83,7 @@ class Feature {
 
   async startOpenWPMInstrumentation(config, isFirstRun) {
     dataReceiver.activeTabDwellTimeMonitor.run();
+    dataReceiver.studyPayloadPreprocessor.run();
     this.openwpmCrawlId = config["crawl_id"];
     if (config["navigation_instrument"]) {
       this.navigationInstrument = new NavigationInstrument(dataReceiver);
@@ -137,6 +138,9 @@ class Feature {
     }
     if (dataReceiver.activeTabDwellTimeMonitor) {
       dataReceiver.activeTabDwellTimeMonitor.cleanup();
+    }
+    if (dataReceiver.studyPayloadPreprocessor) {
+      dataReceiver.studyPayloadPreprocessor.cleanup();
     }
   }
 }
