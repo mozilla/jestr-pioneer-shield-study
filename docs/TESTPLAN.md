@@ -38,6 +38,12 @@ No user interface elements are modified in this study.
 
 ### Do these tests (in addition to ordinary regression tests)
 
+**Manual performance regression test**
+
+- Install the add-on as per above
+- Verify that the study runs
+- Make sure that the add-on is not causing UI freezes on any platform
+
 **Enabling of permanent private browsing before study has begun**
 
 - Enable permanent private browsing
