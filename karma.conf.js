@@ -7,6 +7,9 @@ if (process.env.COVERALLS_REPO_TOKEN) {
 
 const webpackConfig = require("./webpack.config.js");
 
+// https://github.com/webpack-contrib/karma-webpack/issues/231
+webpackConfig.entry = null;
+
 module.exports = function(config) {
   config.set({
     singleRun: true,
@@ -36,12 +39,12 @@ module.exports = function(config) {
     files: [
       "node_modules/sinon/pkg/sinon.js",
       "node_modules/sinon-chrome/bundle/sinon-chrome.min.js",
-      "feature.js/index.js",
+      "feature.js/index.ts",
       "test/unit/*.spec.js",
     ],
     webpack: webpackConfig,
     preprocessors: {
-      "feature.js/*.js": ["webpack"],
+      "feature.js/*.ts": ["webpack"],
       "src/**/*.js": ["babel"],
     },
     plugins: [
