@@ -63,6 +63,24 @@ const baseStudySetup = {
   },
 };
 
+async function isCurrentlyEligible(studySetup) {
+  const dataPermissions = await browser.study.getDataPermissions();
+  if (studySetup.studyType === "shield") {
+    allowed = dataPermissions.shield;
+  }
+  if (studySetup.studyType === "pioneer") {
+    allowed = dataPermissions.pioneer;
+  }
+  // Users with private browsing on autostart are not eligible
+  if (await browser.privacyContext.permanentPrivateBrowsing()) {
+    await browser.taarStudyMonitor.log(
+      "Permanent private browsing, exiting study",
+    );
+    allowed = false;
+  }
+  return allowed;
+}
+
 /**
  * Determine, based on common and study-specific criteria, if enroll (first run)
  * should proceed.
@@ -79,6 +97,7 @@ const baseStudySetup = {
  * @returns {Promise<boolean>} answer An boolean answer about whether the user should be
  *       allowed to enroll in the study
  */
+/*
 async function cachingFirstRunShouldAllowEnroll(studySetup) {
   // Cached answer.  Used on 2nd run
   const localStorageResult = await browser.storage.local.get(
@@ -86,32 +105,16 @@ async function cachingFirstRunShouldAllowEnroll(studySetup) {
   );
   if (localStorageResult.allowedEnrollOnFirstRun === true) return true;
 
-  /*
-  First run, we must calculate the answer.
-  If false, the study will endStudy with 'ineligible' during `setup`
-  */
-
+  // First run, we must calculate the answer.
+  // If false, the study will endStudy with 'ineligible' during `setup`
+  const allowed = await isCurrentlyEligible(studySetup);
   // could have other reasons to be eligible, such add-ons, prefs
-  const dataPermissions = await browser.study.getDataPermissions();
-  if (studySetup.studyType === "shield") {
-    allowed = dataPermissions.shield;
-  }
-  if (studySetup.studyType === "pioneer") {
-    allowed = dataPermissions.pioneer;
-  }
-
-  // Users with private browsing on autostart are not eligible
-  if (await browser.privacyContext.permanentPrivateBrowsing()) {
-    await browser.taarStudyMonitor.log(
-      "Permanent private browsing, exiting study",
-    );
-    allowed = false;
-  }
 
   // cache the answer
   await browser.storage.local.set({ allowedEnrollOnFirstRun: allowed });
   return allowed;
 }
+*/
 
 /**
  * Augment declarative studySetup with any necessary async values
@@ -122,7 +125,11 @@ async function getStudySetup() {
   // shallow copy
   const studySetup = Object.assign({}, baseStudySetup);
 
-  studySetup.allowEnroll = await cachingFirstRunShouldAllowEnroll(studySetup);
+  // Since our eligibility criterias are not dependent on the state of the first run only
+  // but rather should be checked on every browser launch, we skip the use
+  // of cachingFirstRunShouldAllowEnroll
+  // studySetup.allowEnroll = await cachingFirstRunShouldAllowEnroll(studySetup);
+  studySetup.allowEnroll = await isCurrentlyEligible(studySetup);
 
   const testingOverrides = await browser.study.getTestingOverrides();
   studySetup.testing = {
