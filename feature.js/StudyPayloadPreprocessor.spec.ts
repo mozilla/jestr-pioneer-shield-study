@@ -1,7 +1,6 @@
 import { assert } from "chai";
 import {
   NavigationBatch,
-  OpenWPMType,
   StudyPayloadEnvelope,
   StudyPayloadPreprocessor,
 } from "./StudyPayloadPreprocessor";
@@ -320,7 +319,6 @@ describe("StudyPayloadPreprocessor", function() {
           studyPayloadEnvelope,
         );
         */
-
       });
     });
   });

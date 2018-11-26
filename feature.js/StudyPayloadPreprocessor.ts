@@ -5,10 +5,8 @@ import {
   JavascriptCookieRecord,
   JavascriptOperation,
   Navigation,
-  dateTimeUnicodeFormatString,
 } from "openwpm-webext-instrumentation";
 import { CapturedContent, LogEntry } from "./dataReceiver";
-import { parse } from "date-fns";
 import { TelemetrySender } from "./TelemetrySender";
 import { isoDateTimeStringsWithinFutureSecondThreshold } from "./dateUtils";
 
@@ -216,29 +214,29 @@ export class StudyPayloadPreprocessor {
       );
       await this.processQueue();
       if (this.telemetrySender) {
-        const navigationBatchSendQueue = this.navigationBatchSendQueue;
-        await browser.study.logger.info(
-          `Sending the ${
-            navigationBatchSendQueue.length
-          } navigation batches that are old enough`,
-        );
-        navigationBatchSendQueue.map(
-          async (navigationBatch: NavigationBatch) => {
-            const studyPayloadEnvelope: StudyPayloadEnvelope = {
-              type: "navigation_batches",
-              navigationBatch,
-            };
-            await this.telemetrySender.sendStudyPayloadEnvelope(
-              studyPayloadEnvelope,
-            );
-            removeItemFromArray(this.navigationBatchSendQueue, navigationBatch);
-          },
-        );
+        await this.sendQueuedNavigationBatches();
       }
     };
     browser.alarms.onAlarm.addListener(alarmListener);
     browser.alarms.create(this.alarmName, {
       periodInMinutes: 10 / 60, // every 10 seconds
+    });
+  }
+
+  public async sendQueuedNavigationBatches() {
+    const navigationBatchSendQueue = this.navigationBatchSendQueue;
+    await browser.study.logger.info(
+      `Sending the ${
+        navigationBatchSendQueue.length
+      } navigation batches that are old enough`,
+    );
+    navigationBatchSendQueue.map(async (navigationBatch: NavigationBatch) => {
+      const studyPayloadEnvelope: StudyPayloadEnvelope = {
+        type: "navigation_batches",
+        navigationBatch,
+      };
+      await this.telemetrySender.sendStudyPayloadEnvelope(studyPayloadEnvelope);
+      removeItemFromArray(this.navigationBatchSendQueue, navigationBatch);
     });
   }
 

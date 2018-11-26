@@ -156,7 +156,9 @@ export class TelemetrySender {
       await browser.study.logger.log(
         `Calculated ping size over 500kb (${humanFileSize(
           calculatedPingSize,
-        )}) - OpenWPM payload dropped`,
+        )}) - OpenWPM payload of type ${
+          stringifiedStudyTelemetryPacket.type
+        } dropped`,
       );
     } else {
       await browser.study.logger.info(logMessage);
