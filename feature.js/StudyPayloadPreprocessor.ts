@@ -46,10 +46,11 @@ declare namespace browser.privacyContext {
 
 export interface NavigationBatch {
   navigationEnvelope: StudyPayloadEnvelope;
-  httpRequestEnvelopes: StudyPayloadEnvelope[];
-  httpResponseEnvelopes: StudyPayloadEnvelope[];
-  httpRedirectEnvelopes: StudyPayloadEnvelope[];
-  javascriptOperationEnvelopes: StudyPayloadEnvelope[];
+  childEnvelopes: StudyPayloadEnvelope[];
+  httpRequestCount: number;
+  httpResponseCount: number;
+  httpRedirectCount: number;
+  javascriptOperationCount: number;
 }
 
 export type OpenWPMType =
@@ -317,10 +318,11 @@ export class StudyPayloadPreprocessor {
 
         const navigationBatch: NavigationBatch = {
           navigationEnvelope: webNavigationStudyPayloadEnvelope,
-          httpRequestEnvelopes: [],
-          httpResponseEnvelopes: [],
-          httpRedirectEnvelopes: [],
-          javascriptOperationEnvelopes: [],
+          childEnvelopes: [],
+          httpRequestCount: 0,
+          httpResponseCount: 0,
+          httpRedirectCount: 0,
+          javascriptOperationCount: 0,
         };
 
         // Remove navigation envelope from the processing queue
@@ -366,7 +368,7 @@ export class StudyPayloadPreprocessor {
         // Only non-navigations can be assigned navigation parents
         const childCandidates = studyPayloadEnvelopeProcessQueue.filter(
           (studyPayloadEnvelope: StudyPayloadEnvelope) => {
-            return studyPayloadEnvelope.type !== "navigations";
+            return this.batchableOpenWpmType(studyPayloadEnvelope.type);
           },
         );
 
@@ -390,63 +392,30 @@ export class StudyPayloadPreprocessor {
               navigationAgeThresholdInSeconds,
             );
             // console.log("studyPayloadEnvelope.type, isSameFrame, isWithinNavigationEventOrdinalBounds, isWithinNavigationEventAgeThreshold", studyPayloadEnvelope.type, isSameFrame, isWithinNavigationEventOrdinalBounds, isWithinNavigationEventAgeThreshold);
-            switch (studyPayloadEnvelope.type) {
-              case "http_requests":
-                if (isSameFrame && isWithinNavigationEventOrdinalBounds) {
-                  if (isWithinNavigationEventAgeThreshold) {
-                    navigationBatch.httpRequestEnvelopes.push(
-                      studyPayloadEnvelope,
-                    );
-                  }
-                  removeItemFromArray(
-                    studyPayloadEnvelopeProcessQueue,
-                    studyPayloadEnvelope,
-                  );
-                  return true;
+            if (isSameFrame && isWithinNavigationEventOrdinalBounds) {
+              if (isWithinNavigationEventAgeThreshold) {
+                navigationBatch.childEnvelopes.push(studyPayloadEnvelope);
+                // Keep track of envelope counts by type
+                switch (studyPayloadEnvelope.type) {
+                  case "http_requests":
+                    navigationBatch.httpRequestCount++;
+                    break;
+                  case "http_responses":
+                    navigationBatch.httpResponseCount++;
+                    break;
+                  case "http_redirects":
+                    navigationBatch.httpRedirectCount++;
+                    break;
+                  case "javascript":
+                    navigationBatch.javascriptOperationCount++;
+                    break;
                 }
-                break;
-              case "http_responses":
-                if (isSameFrame && isWithinNavigationEventOrdinalBounds) {
-                  if (isWithinNavigationEventAgeThreshold) {
-                    navigationBatch.httpResponseEnvelopes.push(
-                      studyPayloadEnvelope,
-                    );
-                  }
-                  removeItemFromArray(
-                    studyPayloadEnvelopeProcessQueue,
-                    studyPayloadEnvelope,
-                  );
-                  return true;
-                }
-                break;
-              case "http_redirects":
-                if (isSameFrame && isWithinNavigationEventOrdinalBounds) {
-                  if (isWithinNavigationEventAgeThreshold) {
-                    navigationBatch.httpRedirectEnvelopes.push(
-                      studyPayloadEnvelope,
-                    );
-                  }
-                  removeItemFromArray(
-                    studyPayloadEnvelopeProcessQueue,
-                    studyPayloadEnvelope,
-                  );
-                  return true;
-                }
-                break;
-              case "javascript":
-                if (isSameFrame && isWithinNavigationEventOrdinalBounds) {
-                  if (isWithinNavigationEventAgeThreshold) {
-                    navigationBatch.javascriptOperationEnvelopes.push(
-                      studyPayloadEnvelope,
-                    );
-                  }
-                  removeItemFromArray(
-                    studyPayloadEnvelopeProcessQueue,
-                    studyPayloadEnvelope,
-                  );
-                  return true;
-                }
-                break;
+              }
+              removeItemFromArray(
+                studyPayloadEnvelopeProcessQueue,
+                studyPayloadEnvelope,
+              );
+              return true;
             }
             return false;
           },

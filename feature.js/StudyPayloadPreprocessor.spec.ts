@@ -7,12 +7,6 @@ import {
 } from "./StudyPayloadPreprocessor";
 import { parseIsoDateTimeString } from "./dateUtils";
 import { addSeconds } from "date-fns";
-import {
-  HttpRedirect,
-  HttpRequest,
-  HttpResponse,
-  JavascriptOperation,
-} from "openwpm-webext-instrumentation";
 
 describe("StudyPayloadPreprocessor", function() {
   it("should exist", function() {
@@ -203,13 +197,11 @@ describe("StudyPayloadPreprocessor", function() {
         );
         const firstNavigationBatch: NavigationBatch =
           studyPayloadPreprocessor.navigationBatchSendQueue[0];
-        assert.equal(firstNavigationBatch.httpRequestEnvelopes.length, 2);
-        assert.equal(firstNavigationBatch.httpResponseEnvelopes.length, 2);
-        assert.equal(firstNavigationBatch.httpRedirectEnvelopes.length, 0);
-        assert.equal(
-          firstNavigationBatch.javascriptOperationEnvelopes.length,
-          0,
-        );
+        assert.equal(firstNavigationBatch.childEnvelopes.length, 4);
+        assert.equal(firstNavigationBatch.httpRequestCount, 2);
+        assert.equal(firstNavigationBatch.httpResponseCount, 2);
+        assert.equal(firstNavigationBatch.httpRedirectCount, 0);
+        assert.equal(firstNavigationBatch.javascriptOperationCount, 0);
       });
     });
   });
@@ -995,13 +987,11 @@ describe("StudyPayloadPreprocessor", function() {
         );
         const firstNavigationBatch: NavigationBatch =
           studyPayloadPreprocessor.navigationBatchSendQueue[0];
-        assert.equal(firstNavigationBatch.httpRequestEnvelopes.length, 2);
-        assert.equal(firstNavigationBatch.httpResponseEnvelopes.length, 2);
-        assert.equal(firstNavigationBatch.httpRedirectEnvelopes.length, 0);
-        assert.equal(
-          firstNavigationBatch.javascriptOperationEnvelopes.length,
-          0,
-        );
+        assert.equal(firstNavigationBatch.childEnvelopes.length, 4);
+        assert.equal(firstNavigationBatch.httpRequestCount, 2);
+        assert.equal(firstNavigationBatch.httpResponseCount, 2);
+        assert.equal(firstNavigationBatch.httpRedirectCount, 0);
+        assert.equal(firstNavigationBatch.javascriptOperationCount, 0);
       });
     });
 
@@ -1020,13 +1010,11 @@ describe("StudyPayloadPreprocessor", function() {
         );
         const firstNavigationBatch: NavigationBatch =
           studyPayloadPreprocessor.navigationBatchSendQueue[0];
-        assert.equal(firstNavigationBatch.httpRequestEnvelopes.length, 11);
-        assert.equal(firstNavigationBatch.httpResponseEnvelopes.length, 10);
-        assert.equal(firstNavigationBatch.httpRedirectEnvelopes.length, 1);
-        assert.equal(
-          firstNavigationBatch.javascriptOperationEnvelopes.length,
-          0,
-        );
+        assert.equal(firstNavigationBatch.childEnvelopes.length, 22);
+        assert.equal(firstNavigationBatch.httpRequestCount, 11);
+        assert.equal(firstNavigationBatch.httpResponseCount, 10);
+        assert.equal(firstNavigationBatch.httpRedirectCount, 1);
+        assert.equal(firstNavigationBatch.javascriptOperationCount, 0);
       });
     });
 
