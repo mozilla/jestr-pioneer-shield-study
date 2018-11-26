@@ -208,10 +208,6 @@ export class StudyPayloadPreprocessor {
   public async run() {
     this.alarmName = `${browser.runtime.id}:queueProcessorAlarm`;
     const alarmListener = async _alarm => {
-      if (await browser.privacyContext.aPrivateBrowserWindowIsOpen()) {
-        // do not process the batch queue right now (will attempt again at next alarm interval)
-        return;
-      }
       await browser.study.logger.info(
         `Processing ${
           this.studyPayloadEnvelopeProcessQueue.length
@@ -258,7 +254,7 @@ export class StudyPayloadPreprocessor {
    */
   public async processQueue(nowDateTime: Date = new Date()) {
     const navigationAgeThresholdInSeconds: number = 10;
-    const orphanAgeThresholdInSeconds: number = 30;
+    const orphanAgeThresholdInSeconds: number = 25;
 
     // Flush current queue for processing (we will later put back
     // elements that should be processed in an upcoming iteration)
@@ -273,16 +269,13 @@ export class StudyPayloadPreprocessor {
     );
 
     // ... that are more than navigationAgeThresholdInSeconds seconds old
-    const webNavigationStudyPayloadEnvelopesToSend = webNavigationStudyPayloadEnvelopes.filter(
-      (studyPayloadEnvelope: StudyPayloadEnvelope) => {
-        const navigation = studyPayloadEnvelope.navigation;
-        return !isoDateTimeStringsWithinFutureSecondThreshold(
-          navigation.committed_time_stamp,
-          nowDateTime.toISOString(),
-          navigationAgeThresholdInSeconds,
-        );
-      },
-    );
+    const navigationIsOldEnoughToBeSent = (navigation: Navigation) => {
+      return !isoDateTimeStringsWithinFutureSecondThreshold(
+        navigation.committed_time_stamp,
+        nowDateTime.toISOString(),
+        navigationAgeThresholdInSeconds,
+      );
+    };
 
     const sameFrame = (
       subject:
@@ -309,14 +302,18 @@ export class StudyPayloadPreprocessor {
       return fromEventOrdinal < eventOrdinal && eventOrdinal < toEventOrdinal;
     };
 
-    // console.log("debug processQueue", studyPayloadEnvelopeProcessQueue.length, webNavigationStudyPayloadEnvelopes.length, webNavigationStudyPayloadEnvelopesToSend.length);
+    // console.log("debug processQueue", studyPayloadEnvelopeProcessQueue.length, webNavigationStudyPayloadEnvelopes.length);
     // console.log("JSON.stringify(studyPayloadEnvelopeProcessQueue)", JSON.stringify(studyPayloadEnvelopeProcessQueue));
 
-    // For each such navigation...
-    webNavigationStudyPayloadEnvelopesToSend.map(
+    // For each navigation...
+    const reprocessingQueue: StudyPayloadEnvelope[] = [];
+    webNavigationStudyPayloadEnvelopes.map(
       (webNavigationStudyPayloadEnvelope: StudyPayloadEnvelope) => {
         const navigation: Navigation =
           webNavigationStudyPayloadEnvelope.navigation;
+        const send = navigationIsOldEnoughToBeSent(navigation);
+
+        // console.log("navigation, send", navigation, send);
 
         const navigationBatch: NavigationBatch = {
           navigationEnvelope: webNavigationStudyPayloadEnvelope,
@@ -326,13 +323,16 @@ export class StudyPayloadPreprocessor {
           javascriptOperationEnvelopes: [],
         };
 
-        // Remove the navigation envelope from the queue
-        webNavigationStudyPayloadEnvelopesToSend.map(studyPayloadEnvelope => {
-          removeItemFromArray(
-            studyPayloadEnvelopeProcessQueue,
-            studyPayloadEnvelope,
-          );
-        });
+        // Remove navigation envelope from the processing queue
+        removeItemFromArray(
+          studyPayloadEnvelopeProcessQueue,
+          webNavigationStudyPayloadEnvelope,
+        );
+
+        // Mark for reprocessing if it is not going to be sent now
+        if (!send) {
+          reprocessingQueue.push(webNavigationStudyPayloadEnvelope);
+        }
 
         // Find potential subsequent same-frame navigations
         const subsequentNavigationsMatchingThisNavigationsFrame = studyPayloadEnvelopeProcessQueue.filter(
@@ -454,13 +454,56 @@ export class StudyPayloadPreprocessor {
 
         // console.log("studyPayloadEnvelopesAssignedToThisNavigation.length", studyPayloadEnvelopesAssignedToThisNavigation.length,);
 
-        this.navigationBatchSendQueue.push(navigationBatch);
+        if (send) {
+          this.navigationBatchSendQueue.push(navigationBatch);
+        } else {
+          // Mark unsent items for reprocessing
+          studyPayloadEnvelopesAssignedToThisNavigation.map(
+            (studyPayloadEnvelope: StudyPayloadEnvelope) => {
+              reprocessingQueue.push(studyPayloadEnvelope);
+            },
+          );
+        }
       },
     );
 
-    // Restore unprocessed items to the queue
-    studyPayloadEnvelopeProcessQueue.reverse().map(studyPayloadEnvelope => {
+    // Restore unsent items to the queue
+
+    reprocessingQueue.reverse().map(studyPayloadEnvelope => {
       this.studyPayloadEnvelopeProcessQueue.unshift(studyPayloadEnvelope);
     });
+
+    // Drop only old orphaned items (assumption: whose navigation batches have already
+    // been sent and thus not sorted into a queued navigation event above)
+
+    const childIsOldEnoughToBeAnOrphan = (
+      payload: BatchableChildOpenWPMPayload,
+    ) => {
+      return !isoDateTimeStringsWithinFutureSecondThreshold(
+        payload.time_stamp,
+        nowDateTime.toISOString(),
+        orphanAgeThresholdInSeconds,
+      );
+    };
+
+    const studyPayloadEnvelopesWithoutMatchingNavigations = studyPayloadEnvelopeProcessQueue;
+
+    const orphanedStudyPayloadEnvelopes = [];
+
+    studyPayloadEnvelopesWithoutMatchingNavigations
+      .reverse()
+      .map(studyPayloadEnvelope => {
+        const payload: BatchableChildOpenWPMPayload = batchableOpenWpmPayloadFromStudyPayloadEnvelope(
+          studyPayloadEnvelope,
+        ) as BatchableChildOpenWPMPayload;
+
+        if (!childIsOldEnoughToBeAnOrphan(payload)) {
+          this.studyPayloadEnvelopeProcessQueue.unshift(studyPayloadEnvelope);
+        } else {
+          orphanedStudyPayloadEnvelopes.unshift(studyPayloadEnvelope);
+        }
+      });
+
+    // console.log("Orphaned items debug", orphanedStudyPayloadEnvelopes);
   }
 }
