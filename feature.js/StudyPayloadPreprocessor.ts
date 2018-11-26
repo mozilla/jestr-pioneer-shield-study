@@ -9,6 +9,12 @@ import {
 } from "openwpm-webext-instrumentation";
 import { CapturedContent, LogEntry } from "./dataReceiver";
 import { parse } from "date-fns";
+import { TelemetrySender } from "./telemetrySender";
+import { isoDateTimeStringsWithinFutureSecondThreshold } from "./dateUtils";
+
+declare namespace browser.study {
+  const logger: any;
+}
 
 declare namespace browser.alarms {
   function create(
@@ -156,6 +162,10 @@ export const studyPayloadEnvelopeFromOpenWpmTypeAndPayload = (
   return studyPayloadEnvelope;
 };
 
+const removeItemFromArray = (ar, el) => {
+  ar.splice(ar.indexOf(el), 1);
+};
+
 export class StudyPayloadPreprocessor {
   public studyPayloadEnvelopeProcessQueue: StudyPayloadEnvelope[] = [];
   public navigationBatchSendQueue: NavigationBatch[] = [];
@@ -188,6 +198,11 @@ export class StudyPayloadPreprocessor {
     );
   }
 
+  private telemetrySender: TelemetrySender;
+  public setTelemetrySender(value: TelemetrySender) {
+    this.telemetrySender = value;
+  }
+
   private alarmName: string;
 
   public async run() {
@@ -197,7 +212,32 @@ export class StudyPayloadPreprocessor {
         // do not process the batch queue right now (will attempt again at next alarm interval)
         return;
       }
-      this.processQueue();
+      await browser.study.logger.info(
+        `Processing ${
+          this.studyPayloadEnvelopeProcessQueue.length
+        } study payloads to batch and send grouped by navigation`,
+      );
+      await this.processQueue();
+      if (this.telemetrySender) {
+        const navigationBatchSendQueue = this.navigationBatchSendQueue;
+        await browser.study.logger.info(
+          `Sending the ${
+            navigationBatchSendQueue.length
+          } navigation batches that are old enough`,
+        );
+        navigationBatchSendQueue.map(
+          async (navigationBatch: NavigationBatch) => {
+            const studyPayloadEnvelope: StudyPayloadEnvelope = {
+              type: "navigation_batches",
+              navigationBatch,
+            };
+            await this.telemetrySender.sendStudyPayloadEnvelope(
+              studyPayloadEnvelope,
+            );
+            removeItemFromArray(this.navigationBatchSendQueue, navigationBatch);
+          },
+        );
+      }
     };
     browser.alarms.onAlarm.addListener(alarmListener);
     browser.alarms.create(this.alarmName, {
@@ -236,19 +276,13 @@ export class StudyPayloadPreprocessor {
     const webNavigationStudyPayloadEnvelopesToSend = webNavigationStudyPayloadEnvelopes.filter(
       (studyPayloadEnvelope: StudyPayloadEnvelope) => {
         const navigation = studyPayloadEnvelope.navigation;
-        const committedDateTime = parse(
+        return !isoDateTimeStringsWithinFutureSecondThreshold(
           navigation.committed_time_stamp,
-          dateTimeUnicodeFormatString,
-          new Date(),
+          nowDateTime.toISOString(),
+          navigationAgeThresholdInSeconds,
         );
-        const seconds = nowDateTime.getTime() - committedDateTime.getTime();
-        return seconds > navigationAgeThresholdInSeconds * 1000;
       },
     );
-
-    const removeItemFromArray = (ar, el) => {
-      ar.splice(ar.indexOf(el), 1);
-    };
 
     const sameFrame = (
       subject:
@@ -275,11 +309,15 @@ export class StudyPayloadPreprocessor {
       return fromEventOrdinal < eventOrdinal && eventOrdinal < toEventOrdinal;
     };
 
-    // console.log("debug processQueue", studyPayloadEnvelopeProcessQueue.length, webNavigationStudyPayloadEnvelopes.length, webNavigationStudyPayloadEnvelopesToSend.length, // JSON.stringify(studyPayloadEnvelopeProcessQueue),);
+    // console.log("debug processQueue", studyPayloadEnvelopeProcessQueue.length, webNavigationStudyPayloadEnvelopes.length, webNavigationStudyPayloadEnvelopesToSend.length);
+    // console.log("JSON.stringify(studyPayloadEnvelopeProcessQueue)", JSON.stringify(studyPayloadEnvelopeProcessQueue));
 
     // For each such navigation...
     webNavigationStudyPayloadEnvelopesToSend.map(
       (webNavigationStudyPayloadEnvelope: StudyPayloadEnvelope) => {
+        const navigation: Navigation =
+          webNavigationStudyPayloadEnvelope.navigation;
+
         const navigationBatch: NavigationBatch = {
           navigationEnvelope: webNavigationStudyPayloadEnvelope,
           httpRequestEnvelopes: [],
@@ -302,15 +340,11 @@ export class StudyPayloadPreprocessor {
             switch (studyPayloadEnvelope.type) {
               case "navigations":
                 return (
-                  sameFrame(
-                    studyPayloadEnvelope.navigation,
-                    webNavigationStudyPayloadEnvelope.navigation,
-                  ) &&
+                  sameFrame(studyPayloadEnvelope.navigation, navigation) &&
                   withinNavigationEventOrdinalBounds(
                     studyPayloadEnvelope.navigation
                       .before_navigate_event_ordinal,
-                    webNavigationStudyPayloadEnvelope.navigation
-                      .before_navigate_event_ordinal,
+                    navigation.before_navigate_event_ordinal,
                     Number.MAX_SAFE_INTEGER,
                   )
                 );
@@ -322,9 +356,7 @@ export class StudyPayloadPreprocessor {
         // console.log("subsequentNavigationsMatchingThisNavigationsFrame.length", subsequentNavigationsMatchingThisNavigationsFrame.length,);
 
         // Assign matching children to this navigation
-        const fromEventOrdinal =
-          webNavigationStudyPayloadEnvelope.navigation
-            .before_navigate_event_ordinal;
+        const fromEventOrdinal = navigation.before_navigate_event_ordinal;
         const toEventOrdinal =
           subsequentNavigationsMatchingThisNavigationsFrame.length === 0
             ? Number.MAX_SAFE_INTEGER
@@ -346,22 +378,26 @@ export class StudyPayloadPreprocessor {
             const payload: BatchableChildOpenWPMPayload = batchableOpenWpmPayloadFromStudyPayloadEnvelope(
               studyPayloadEnvelope,
             ) as BatchableChildOpenWPMPayload;
-            const type = studyPayloadEnvelope.type;
-            const isSameFrame = sameFrame(
-              payload,
-              webNavigationStudyPayloadEnvelope.navigation,
-            );
+            const isSameFrame = sameFrame(payload, navigation);
             const isWithinNavigationEventOrdinalBounds = withinNavigationEventOrdinalBounds(
               payload.event_ordinal,
               fromEventOrdinal,
               toEventOrdinal,
             );
+            const isWithinNavigationEventAgeThreshold = isoDateTimeStringsWithinFutureSecondThreshold(
+              navigation.committed_time_stamp,
+              payload.time_stamp,
+              navigationAgeThresholdInSeconds,
+            );
+            // console.log("studyPayloadEnvelope.type, isSameFrame, isWithinNavigationEventOrdinalBounds, isWithinNavigationEventAgeThreshold", studyPayloadEnvelope.type, isSameFrame, isWithinNavigationEventOrdinalBounds, isWithinNavigationEventAgeThreshold);
             switch (studyPayloadEnvelope.type) {
               case "http_requests":
                 if (isSameFrame && isWithinNavigationEventOrdinalBounds) {
-                  navigationBatch.httpRequestEnvelopes.push(
-                    studyPayloadEnvelope,
-                  );
+                  if (isWithinNavigationEventAgeThreshold) {
+                    navigationBatch.httpRequestEnvelopes.push(
+                      studyPayloadEnvelope,
+                    );
+                  }
                   removeItemFromArray(
                     studyPayloadEnvelopeProcessQueue,
                     studyPayloadEnvelope,
@@ -371,9 +407,11 @@ export class StudyPayloadPreprocessor {
                 break;
               case "http_responses":
                 if (isSameFrame && isWithinNavigationEventOrdinalBounds) {
-                  navigationBatch.httpResponseEnvelopes.push(
-                    studyPayloadEnvelope,
-                  );
+                  if (isWithinNavigationEventAgeThreshold) {
+                    navigationBatch.httpResponseEnvelopes.push(
+                      studyPayloadEnvelope,
+                    );
+                  }
                   removeItemFromArray(
                     studyPayloadEnvelopeProcessQueue,
                     studyPayloadEnvelope,
@@ -383,9 +421,11 @@ export class StudyPayloadPreprocessor {
                 break;
               case "http_redirects":
                 if (isSameFrame && isWithinNavigationEventOrdinalBounds) {
-                  navigationBatch.httpRedirectEnvelopes.push(
-                    studyPayloadEnvelope,
-                  );
+                  if (isWithinNavigationEventAgeThreshold) {
+                    navigationBatch.httpRedirectEnvelopes.push(
+                      studyPayloadEnvelope,
+                    );
+                  }
                   removeItemFromArray(
                     studyPayloadEnvelopeProcessQueue,
                     studyPayloadEnvelope,
@@ -395,9 +435,11 @@ export class StudyPayloadPreprocessor {
                 break;
               case "javascript":
                 if (isSameFrame && isWithinNavigationEventOrdinalBounds) {
-                  navigationBatch.javascriptOperationEnvelopes.push(
-                    studyPayloadEnvelope,
-                  );
+                  if (isWithinNavigationEventAgeThreshold) {
+                    navigationBatch.javascriptOperationEnvelopes.push(
+                      studyPayloadEnvelope,
+                    );
+                  }
                   removeItemFromArray(
                     studyPayloadEnvelopeProcessQueue,
                     studyPayloadEnvelope,

@@ -178,9 +178,9 @@ describe("StudyPayloadPreprocessor", function() {
 
     describe("Queue processing 5 seconds after the visit", function() {
       const nowDateTime = addSeconds(firstVisitDateTime, 5);
-      it("should not yield any navigation batches to send", function() {
+      it("should not yield any navigation batches to send", async function() {
         studyPayloadPreprocessor.navigationBatchSendQueue = [];
-        studyPayloadPreprocessor.processQueue(nowDateTime);
+        await studyPayloadPreprocessor.processQueue(nowDateTime);
         assert.equal(
           studyPayloadPreprocessor.navigationBatchSendQueue.length,
           0,
@@ -190,9 +190,9 @@ describe("StudyPayloadPreprocessor", function() {
 
     describe("Queue processing 20 seconds after the visit", function() {
       const nowDateTime = addSeconds(firstVisitDateTime, 20);
-      it("should yield relevant navigation batches to send", function() {
+      it("should yield relevant navigation batches to send", async function() {
         studyPayloadPreprocessor.navigationBatchSendQueue = [];
-        studyPayloadPreprocessor.processQueue(nowDateTime);
+        await studyPayloadPreprocessor.processQueue(nowDateTime);
         assert.equal(
           studyPayloadPreprocessor.studyPayloadEnvelopeProcessQueue.length,
           0,
@@ -970,9 +970,9 @@ describe("StudyPayloadPreprocessor", function() {
 
     describe("Queue processing 5 seconds after the first visit (around the time of the second visit)", function() {
       const nowDateTime = addSeconds(firstVisitDateTime, 5);
-      it("should not yield any navigation batches to send", function() {
+      it("should not yield any navigation batches to send", async function() {
         studyPayloadPreprocessor.navigationBatchSendQueue = [];
-        studyPayloadPreprocessor.processQueue(nowDateTime);
+        await studyPayloadPreprocessor.processQueue(nowDateTime);
         assert.equal(
           studyPayloadPreprocessor.navigationBatchSendQueue.length,
           0,
@@ -982,9 +982,9 @@ describe("StudyPayloadPreprocessor", function() {
 
     describe("Subsequent queue processing 12 seconds after the visit (around 7 seconds after the second visit)", function() {
       const nowDateTime = addSeconds(firstVisitDateTime, 12);
-      it("should yield relevant navigation batches to send", function() {
+      it("should yield relevant navigation batches to send", async function() {
         studyPayloadPreprocessor.navigationBatchSendQueue = [];
-        studyPayloadPreprocessor.processQueue(nowDateTime);
+        await studyPayloadPreprocessor.processQueue(nowDateTime);
         assert.equal(
           studyPayloadPreprocessor.studyPayloadEnvelopeProcessQueue.length,
           23,
@@ -1007,9 +1007,9 @@ describe("StudyPayloadPreprocessor", function() {
 
     describe("Subsequent queue processing 17 seconds after the visit (around 12 seconds after the second visit)", function() {
       const nowDateTime = addSeconds(firstVisitDateTime, 17);
-      it("should yield relevant navigation batches to send", function() {
+      it("should yield relevant navigation batches to send", async function() {
         studyPayloadPreprocessor.navigationBatchSendQueue = [];
-        studyPayloadPreprocessor.processQueue(nowDateTime);
+        await studyPayloadPreprocessor.processQueue(nowDateTime);
         assert.equal(
           studyPayloadPreprocessor.studyPayloadEnvelopeProcessQueue.length,
           0,
@@ -1032,9 +1032,9 @@ describe("StudyPayloadPreprocessor", function() {
 
     describe("Subsequent queue processing 25 seconds after the visit (around 20 seconds after the second visit)", function() {
       const nowDateTime = addSeconds(firstVisitDateTime, 25);
-      it("should not yield any navigation batches to send", function() {
+      it("should not yield any navigation batches to send", async function() {
         studyPayloadPreprocessor.navigationBatchSendQueue = [];
-        studyPayloadPreprocessor.processQueue(nowDateTime);
+        await studyPayloadPreprocessor.processQueue(nowDateTime);
         assert.equal(
           studyPayloadPreprocessor.studyPayloadEnvelopeProcessQueue.length,
           0,

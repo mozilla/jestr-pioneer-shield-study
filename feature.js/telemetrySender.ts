@@ -42,8 +42,8 @@ export interface StringifiedStudyTelemetryPacket {
 
 export class TelemetrySender {
   private studyPayloadPreprocessor: StudyPayloadPreprocessor;
-
   constructor(studyPayloadPreprocessor: StudyPayloadPreprocessor) {
+    studyPayloadPreprocessor.setTelemetrySender(this);
     this.studyPayloadPreprocessor = studyPayloadPreprocessor;
   }
 
@@ -70,14 +70,13 @@ export class TelemetrySender {
     // or dropped (if no corresponding navigation showed up)
     if (this.studyPayloadPreprocessor.shouldBeBatched(studyPayloadEnvelope)) {
       this.studyPayloadPreprocessor.queueForProcessing(studyPayloadEnvelope);
-      // TODO: debounce with timeout to send any batched payloads
       return;
     }
 
     return this.sendStudyPayloadEnvelope(studyPayloadEnvelope);
   }
 
-  private async sendStudyPayloadEnvelope(
+  public async sendStudyPayloadEnvelope(
     studyPayloadEnvelope: StudyPayloadEnvelope,
   ) {
     const studyTelemetryPacket: StudyTelemetryPacket = {
@@ -155,7 +154,9 @@ export class TelemetrySender {
       delete stringifiedStudyTelemetryPacket.capturedContent;
       stringifiedStudyTelemetryPacket.calculatedPingSizeOverThreshold = "1";
       await browser.study.logger.log(
-        "Calculated ping size over 500kb - OpenWPM payload dropped",
+        `Calculated ping size over 500kb (${humanFileSize(
+          calculatedPingSize,
+        )}) - OpenWPM payload dropped`,
       );
     } else {
       await browser.study.logger.info(logMessage);
