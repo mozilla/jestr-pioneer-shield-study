@@ -18,7 +18,11 @@ import {
   studyPayloadEnvelopeFromOpenWpmTypeAndPayload,
   StudyPayloadPreprocessor,
   StudyTelemetryPacket,
+  TrimmedNavigationBatch,
 } from "./StudyPayloadPreprocessor";
+import { escapeString } from "openwpm-webext-instrumentation";
+
+export const thresholdSize = 1024 * 500;
 
 /**
  * Shield utils schema requires all study telemetry packet
@@ -28,6 +32,7 @@ export interface StringifiedStudyTelemetryPacket {
   type: string;
   navigation?: string;
   navigationBatch?: string;
+  trimmedNavigationBatch?: string;
   httpRequest?: string;
   httpResponse?: string;
   httpRedirect?: string;
@@ -36,7 +41,8 @@ export interface StringifiedStudyTelemetryPacket {
   logEntry?: string;
   capturedContent?: string;
   calculatedPingSize: string;
-  calculatedPingSizeOverThreshold: string;
+  originalCalculatedPingSize: string;
+  originalCalculatedPingSizeOverThreshold: string;
   tabActiveDwellTime?: string;
 }
 
@@ -79,35 +85,64 @@ export class TelemetrySender {
   public async sendStudyPayloadEnvelope(
     studyPayloadEnvelope: StudyPayloadEnvelope,
   ) {
+    const sizedAndPrepared = await this.prepareForTelemetry(
+      studyPayloadEnvelope,
+    );
+    const acceptablySizedReadyForSending = await this.ensurePingSizeUnderThreshold(
+      sizedAndPrepared,
+      studyPayloadEnvelope,
+    );
+    return this.sendTelemetry(acceptablySizedReadyForSending);
+  }
+
+  private async prepareForTelemetry(
+    studyPayloadEnvelope: StudyPayloadEnvelope,
+    originalCalculatedPingSize: number = null,
+  ) {
     const studyTelemetryPacket: StudyTelemetryPacket = {
       ...studyPayloadEnvelope,
       calculatedPingSize: "0000000000", // Will be replaced below with the real (approximate) calculated ping size
-      calculatedPingSizeOverThreshold: 0,
+      originalCalculatedPingSize: "0000000000", // Will be replaced below with the real (approximate) calculated ping size
+      originalCalculatedPingSizeOverThreshold: 0,
     };
-    const stringifiedStudyTelemetryPacket: StringifiedStudyTelemetryPacket = this.stringifyPayload(
+    const sizedAndPrepared: StringifiedStudyTelemetryPacket = this.stringifyPayload(
       studyTelemetryPacket,
     );
-    const acceptableStringifiedStudyTelemetryPacket = await this.ensurePingSizeUnderThreshold(
-      stringifiedStudyTelemetryPacket,
+    const calculatedPingSize = await browser.study.calculateTelemetryPingSize(
+      sizedAndPrepared,
     );
-    return this.sendTelemetry(acceptableStringifiedStudyTelemetryPacket);
+    sizedAndPrepared.calculatedPingSize = String(calculatedPingSize);
+    sizedAndPrepared.originalCalculatedPingSize = String(
+      originalCalculatedPingSize
+        ? originalCalculatedPingSize
+        : calculatedPingSize,
+    );
+    return sizedAndPrepared;
   }
 
+  /**
+   * Since shield utils schema requires all study telemetry packet
+   * attributes to be strings
+   */
   private stringifyPayload(
     studyTelemetryPacket: StudyTelemetryPacket,
   ): StringifiedStudyTelemetryPacket {
     const stringifiedStudyTelemetryPacket: StringifiedStudyTelemetryPacket = {
-      type: JSON.stringify(studyTelemetryPacket.type),
+      type: escapeString(studyTelemetryPacket.type),
       calculatedPingSize: JSON.stringify(
         studyTelemetryPacket.calculatedPingSize,
       ),
-      calculatedPingSizeOverThreshold: JSON.stringify(
-        studyTelemetryPacket.calculatedPingSizeOverThreshold,
+      originalCalculatedPingSize: JSON.stringify(
+        studyTelemetryPacket.originalCalculatedPingSize,
+      ),
+      originalCalculatedPingSizeOverThreshold: JSON.stringify(
+        studyTelemetryPacket.originalCalculatedPingSizeOverThreshold,
       ),
     };
     [
       "navigation",
       "navigationBatch",
+      "trimmedNavigationBatch",
       "httpRequest",
       "httpResponse",
       "httpRedirect",
@@ -129,48 +164,169 @@ export class TelemetrySender {
     return stringifiedStudyTelemetryPacket;
   }
 
+  /**
+   * Do not let large packets through
+   * @param sizedAndPrepared
+   * @param studyPayloadEnvelope
+   */
   private async ensurePingSizeUnderThreshold(
-    stringifiedStudyTelemetryPacket: StringifiedStudyTelemetryPacket,
+    sizedAndPrepared: StringifiedStudyTelemetryPacket,
+    studyPayloadEnvelope: StudyPayloadEnvelope,
   ) {
-    const calculatedPingSize = await browser.study.calculateTelemetryPingSize(
-      stringifiedStudyTelemetryPacket,
+    const calculatedPingSize = parseInt(
+      sizedAndPrepared.calculatedPingSize,
+      10,
     );
-    stringifiedStudyTelemetryPacket.calculatedPingSize = String(
-      calculatedPingSize,
+    const originalCalculatedPingSize = parseInt(
+      sizedAndPrepared.originalCalculatedPingSize,
+      10,
     );
     const logMessage = `Calculated size of the ${
-      stringifiedStudyTelemetryPacket.type
-    } ping which is being submitted: ${humanFileSize(calculatedPingSize)}`;
-    if (calculatedPingSize > 1024 * 500) {
+      sizedAndPrepared.type
+    } ping which is being submitted: ${humanFileSize(
+      calculatedPingSize,
+    )} - original pings size ${humanFileSize(originalCalculatedPingSize)}`;
+    if (calculatedPingSize > thresholdSize) {
       await browser.study.logger.log(logMessage);
-      delete stringifiedStudyTelemetryPacket.navigation;
-      delete stringifiedStudyTelemetryPacket.navigationBatch;
-      delete stringifiedStudyTelemetryPacket.httpRequest;
-      delete stringifiedStudyTelemetryPacket.httpResponse;
-      delete stringifiedStudyTelemetryPacket.httpRedirect;
-      delete stringifiedStudyTelemetryPacket.javascriptOperation;
-      delete stringifiedStudyTelemetryPacket.javascriptCookieRecord;
-      delete stringifiedStudyTelemetryPacket.logEntry;
-      delete stringifiedStudyTelemetryPacket.capturedContent;
-      stringifiedStudyTelemetryPacket.calculatedPingSizeOverThreshold = "1";
+
+      if (studyPayloadEnvelope.type === "navigation_batches") {
+        sizedAndPrepared = await this.trimNavigationBatch(
+          sizedAndPrepared,
+          studyPayloadEnvelope,
+        );
+      } else {
+        this.dropOpenWpmPayloadAndSendStudyPayloadEnvelope(sizedAndPrepared);
+      }
+
+      const calculatedPingSize = await browser.study.calculateTelemetryPingSize(
+        sizedAndPrepared,
+      );
+      sizedAndPrepared.calculatedPingSize = String(calculatedPingSize);
+
       await browser.study.logger.log(
-        `Calculated ping size over 500kb (${humanFileSize(
-          calculatedPingSize,
+        `Original calculated ping size over 500kb (${humanFileSize(
+          originalCalculatedPingSize,
         )}) - OpenWPM payload of type ${
-          stringifiedStudyTelemetryPacket.type
-        } dropped`,
+          sizedAndPrepared.type
+        } dropped - new pings size ${humanFileSize(calculatedPingSize)}`,
       );
     } else {
       await browser.study.logger.info(logMessage);
     }
-    return stringifiedStudyTelemetryPacket;
+    if (originalCalculatedPingSize > thresholdSize) {
+      sizedAndPrepared.originalCalculatedPingSizeOverThreshold = "1";
+    } else {
+      sizedAndPrepared.originalCalculatedPingSizeOverThreshold = "0";
+    }
+    return sizedAndPrepared;
+  }
+
+  private async trimNavigationBatch(
+    sizedAndPrepared: StringifiedStudyTelemetryPacket,
+    studyPayloadEnvelope: StudyPayloadEnvelope,
+  ) {
+    console.log(
+      "studyPayloadEnvelope, sizedAndPrepared",
+      studyPayloadEnvelope,
+      sizedAndPrepared,
+    );
+    const originalCalculatedPingSize = parseInt(
+      sizedAndPrepared.originalCalculatedPingSize,
+      10,
+    );
+    const trimmedNavigationBatch: TrimmedNavigationBatch = {
+      ...studyPayloadEnvelope.navigationBatch,
+      trimmedHttpRequestCount: -1,
+      trimmedHttpResponseCount: -1,
+      trimmedHttpRedirectCount: -1,
+      trimmedJavascriptOperationCount: -1,
+    };
+
+    const maxIterations = 1000;
+
+    /*
+    originalCalculatedPingSize = await browser.study.calculateTelemetryPingSize(
+      sizedAndPrepared,
+    );
+    await this.ensurePingSizeUnderThreshold(studyPayloadEnvelope);
+    */
+
+    const childEnvelopes = trimmedNavigationBatch.childEnvelopes;
+    trimmedNavigationBatch.childEnvelopes = [];
+
+    let i,
+      currentCalculatedSize,
+      trimmedSizedAndPrepared: StringifiedStudyTelemetryPacket,
+      trimmedStudyPayloadEnvelope: StudyPayloadEnvelope;
+
+    // initial values
+    i = 0;
+    do {
+      i = i + 1;
+
+      console.log("TODO TRIM iteration", i);
+
+      // try adding one packet at a time
+      trimmedNavigationBatch.childEnvelopes = childEnvelopes.splice(0, i);
+
+      // console.log("TODO TRIM trimmedNavigationBatch", trimmedNavigationBatch);
+
+      trimmedStudyPayloadEnvelope = {
+        type: "trimmed_navigation_batches",
+        trimmedNavigationBatch,
+      };
+
+      const trimmedSizedAndPreparedCandidate = await this.prepareForTelemetry(
+        trimmedStudyPayloadEnvelope,
+        originalCalculatedPingSize,
+      );
+
+      currentCalculatedSize = parseInt(
+        trimmedSizedAndPreparedCandidate.calculatedPingSize,
+        10,
+      );
+
+      console.log("TODO TRIM currentCalculatedSize", currentCalculatedSize);
+
+      // we stop being happy when we are at 1kb under the hard threshold
+      // (1kb allows for some fuzzyness in how the sizes may
+      // differ slightly after smaller modifications)
+      if (currentCalculatedSize > thresholdSize - 1024) {
+        break;
+      }
+
+      trimmedSizedAndPrepared = trimmedSizedAndPreparedCandidate;
+    } while (i < maxIterations);
+
+    // as a final safe-guard, run it through the filter against
+    return await this.ensurePingSizeUnderThreshold(
+      trimmedSizedAndPrepared,
+      trimmedStudyPayloadEnvelope,
+    );
+  }
+
+  private async dropOpenWpmPayloadAndSendStudyPayloadEnvelope(
+    sizedAndPrepared: StringifiedStudyTelemetryPacket,
+  ) {
+    delete sizedAndPrepared.navigation;
+    delete sizedAndPrepared.navigationBatch;
+    delete sizedAndPrepared.trimmedNavigationBatch;
+    delete sizedAndPrepared.httpRequest;
+    delete sizedAndPrepared.httpResponse;
+    delete sizedAndPrepared.httpRedirect;
+    delete sizedAndPrepared.javascriptOperation;
+    delete sizedAndPrepared.javascriptCookieRecord;
+    delete sizedAndPrepared.logEntry;
+    delete sizedAndPrepared.capturedContent;
   }
 
   private async sendTelemetry(
-    acceptableStringifiedStudyTelemetryPacket: StringifiedStudyTelemetryPacket,
+    acceptablySizedReadyForSending: StringifiedStudyTelemetryPacket,
   ) {
-    return browser.study.sendTelemetry(
-      acceptableStringifiedStudyTelemetryPacket,
+    console.log(
+      "acceptablySizedReadyForSending",
+      acceptablySizedReadyForSending,
     );
+    return browser.study.sendTelemetry(acceptablySizedReadyForSending);
   }
 }

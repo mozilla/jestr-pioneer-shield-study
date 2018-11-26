@@ -51,9 +51,17 @@ export interface NavigationBatch {
   javascriptOperationCount: number;
 }
 
+export interface TrimmedNavigationBatch extends NavigationBatch {
+  trimmedHttpRequestCount: number;
+  trimmedHttpResponseCount: number;
+  trimmedHttpRedirectCount: number;
+  trimmedJavascriptOperationCount: number;
+}
+
 export type OpenWPMType =
   | "navigations"
   | "navigation_batches"
+  | "trimmed_navigation_batches"
   | "http_requests"
   | "http_responses"
   | "http_redirects"
@@ -65,6 +73,7 @@ export type OpenWPMType =
 type OpenWPMPayload =
   | Navigation
   | NavigationBatch
+  | TrimmedNavigationBatch
   | HttpRequest
   | HttpResponse
   | HttpRedirect
@@ -93,6 +102,7 @@ export interface StudyPayloadEnvelope {
   type: OpenWPMType;
   navigation?: Navigation;
   navigationBatch?: NavigationBatch;
+  trimmedNavigationBatch?: TrimmedNavigationBatch;
   httpRequest?: HttpRequest;
   httpResponse?: HttpResponse;
   httpRedirect?: HttpRedirect;
@@ -110,7 +120,8 @@ export interface StudyPayloadEnvelope {
  */
 export interface StudyTelemetryPacket extends StudyPayloadEnvelope {
   calculatedPingSize: string;
-  calculatedPingSizeOverThreshold: number;
+  originalCalculatedPingSize: string;
+  originalCalculatedPingSizeOverThreshold: number;
 }
 
 export const batchableOpenWpmPayloadFromStudyPayloadEnvelope = (
@@ -140,6 +151,10 @@ export const studyPayloadEnvelopeFromOpenWpmTypeAndPayload = (
     navigation: type === "navigations" ? (payload as Navigation) : undefined,
     navigationBatch:
       type === "navigation_batches" ? (payload as NavigationBatch) : undefined,
+    trimmedNavigationBatch:
+      type === "trimmed_navigation_batches"
+        ? (payload as TrimmedNavigationBatch)
+        : undefined,
     httpRequest:
       type === "http_requests" ? (payload as HttpRequest) : undefined,
     httpResponse:
