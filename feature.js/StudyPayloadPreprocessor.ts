@@ -121,7 +121,6 @@ export interface StudyPayloadEnvelope {
 export interface StudyTelemetryPacket extends StudyPayloadEnvelope {
   calculatedPingSize: string;
   originalCalculatedPingSize: string;
-  originalCalculatedPingSizeOverThreshold: number;
 }
 
 export const batchableOpenWpmPayloadFromStudyPayloadEnvelope = (

@@ -42,7 +42,6 @@ export interface StringifiedStudyTelemetryPacket {
   capturedContent?: string;
   calculatedPingSize: string;
   originalCalculatedPingSize: string;
-  originalCalculatedPingSizeOverThreshold: string;
   tabActiveDwellTime?: string;
 }
 
@@ -103,7 +102,6 @@ export class TelemetrySender {
       ...studyPayloadEnvelope,
       calculatedPingSize: "0000000000", // Will be replaced below with the real (approximate) calculated ping size
       originalCalculatedPingSize: "0000000000", // Will be replaced below with the real (approximate) calculated ping size
-      originalCalculatedPingSizeOverThreshold: 0,
     };
     const sizedAndPrepared: StringifiedStudyTelemetryPacket = this.stringifyPayload(
       studyTelemetryPacket,
@@ -134,9 +132,6 @@ export class TelemetrySender {
       ),
       originalCalculatedPingSize: JSON.stringify(
         studyTelemetryPacket.originalCalculatedPingSize,
-      ),
-      originalCalculatedPingSizeOverThreshold: JSON.stringify(
-        studyTelemetryPacket.originalCalculatedPingSizeOverThreshold,
       ),
     };
     [
@@ -177,19 +172,11 @@ export class TelemetrySender {
       sizedAndPrepared.calculatedPingSize,
       10,
     );
-    const originalCalculatedPingSize = parseInt(
-      sizedAndPrepared.originalCalculatedPingSize,
-      10,
-    );
-    const logMessage = `Calculated size of the ${
-      sizedAndPrepared.type
-    } ping which is being submitted: ${humanFileSize(
-      calculatedPingSize,
-    )} - original pings size ${humanFileSize(originalCalculatedPingSize)}`;
     if (calculatedPingSize > thresholdSize) {
-      await browser.study.logger.log(logMessage);
-
-      if (studyPayloadEnvelope.type === "navigation_batches") {
+      if (
+        studyPayloadEnvelope.type === "navigation_batches" &&
+        studyPayloadEnvelope.navigationBatch.childEnvelopes.length > 0
+      ) {
         sizedAndPrepared = await this.trimNavigationBatch(
           sizedAndPrepared,
           studyPayloadEnvelope,
@@ -197,26 +184,11 @@ export class TelemetrySender {
       } else {
         this.dropOpenWpmPayloadAndSendStudyPayloadEnvelope(sizedAndPrepared);
       }
-
+      // update the current ping size after trim/drop
       const calculatedPingSize = await browser.study.calculateTelemetryPingSize(
         sizedAndPrepared,
       );
       sizedAndPrepared.calculatedPingSize = String(calculatedPingSize);
-
-      await browser.study.logger.log(
-        `Original calculated ping size over 500kb (${humanFileSize(
-          originalCalculatedPingSize,
-        )}) - OpenWPM payload of type ${
-          sizedAndPrepared.type
-        } dropped - new pings size ${humanFileSize(calculatedPingSize)}`,
-      );
-    } else {
-      await browser.study.logger.info(logMessage);
-    }
-    if (originalCalculatedPingSize > thresholdSize) {
-      sizedAndPrepared.originalCalculatedPingSizeOverThreshold = "1";
-    } else {
-      sizedAndPrepared.originalCalculatedPingSizeOverThreshold = "0";
     }
     return sizedAndPrepared;
   }
@@ -225,15 +197,11 @@ export class TelemetrySender {
     sizedAndPrepared: StringifiedStudyTelemetryPacket,
     studyPayloadEnvelope: StudyPayloadEnvelope,
   ) {
-    console.log(
-      "studyPayloadEnvelope, sizedAndPrepared",
-      studyPayloadEnvelope,
-      sizedAndPrepared,
-    );
     const originalCalculatedPingSize = parseInt(
       sizedAndPrepared.originalCalculatedPingSize,
       10,
     );
+
     const trimmedNavigationBatch: TrimmedNavigationBatch = {
       ...studyPayloadEnvelope.navigationBatch,
       trimmedHttpRequestCount: -1,
@@ -242,16 +210,11 @@ export class TelemetrySender {
       trimmedJavascriptOperationCount: -1,
     };
 
-    const maxIterations = 1000;
+    const maxChildEnvelopesInTrimmedNavigationBatch = 1000;
 
-    /*
-    originalCalculatedPingSize = await browser.study.calculateTelemetryPingSize(
-      sizedAndPrepared,
+    const childEnvelopes = JSON.parse(
+      JSON.stringify(trimmedNavigationBatch.childEnvelopes),
     );
-    await this.ensurePingSizeUnderThreshold(studyPayloadEnvelope);
-    */
-
-    const childEnvelopes = trimmedNavigationBatch.childEnvelopes;
     trimmedNavigationBatch.childEnvelopes = [];
 
     let i,
@@ -264,13 +227,11 @@ export class TelemetrySender {
     do {
       i = i + 1;
 
-      console.log("TODO TRIM iteration", i);
-
       // try adding one packet at a time
       trimmedNavigationBatch.childEnvelopes = childEnvelopes.splice(0, i);
+      this.updateTrimmedNavigationBatchCounts(trimmedNavigationBatch);
 
-      // console.log("TODO TRIM trimmedNavigationBatch", trimmedNavigationBatch);
-
+      // check the size with the added child envelope
       trimmedStudyPayloadEnvelope = {
         type: "trimmed_navigation_batches",
         trimmedNavigationBatch,
@@ -286,23 +247,53 @@ export class TelemetrySender {
         10,
       );
 
-      console.log("TODO TRIM currentCalculatedSize", currentCalculatedSize);
-
-      // we stop being happy when we are at 1kb under the hard threshold
-      // (1kb allows for some fuzzyness in how the sizes may
-      // differ slightly after smaller modifications)
+      // we happily stop adding new child envelopes when we are still
+      // at 1kb under the hard threshold (1kb allows for some fuzziness
+      // in how the sizes may differ slightly after this point)
       if (currentCalculatedSize > thresholdSize - 1024) {
         break;
       }
 
       trimmedSizedAndPrepared = trimmedSizedAndPreparedCandidate;
-    } while (i < maxIterations);
 
-    // as a final safe-guard, run it through the filter against
+      // we stop if we have already included all of our child envelopes
+      if (
+        trimmedNavigationBatch.childEnvelopes.length >= childEnvelopes.length
+      ) {
+        break;
+      }
+    } while (i < maxChildEnvelopesInTrimmedNavigationBatch);
+
+    // as a final safe-guard, we run the trimmed navigation
+    // batch through the threshold limiter
     return await this.ensurePingSizeUnderThreshold(
       trimmedSizedAndPrepared,
       trimmedStudyPayloadEnvelope,
     );
+  }
+
+  private async updateTrimmedNavigationBatchCounts(trimmedNavigationBatch) {
+    trimmedNavigationBatch.trimmedHttpRequestCount = 0;
+    trimmedNavigationBatch.trimmedHttpResponseCount = 0;
+    trimmedNavigationBatch.trimmedHttpRedirectCount = 0;
+    trimmedNavigationBatch.trimmedJavascriptOperationCount = 0;
+    trimmedNavigationBatch.childEnvelopes.map(studyPayloadEnvelope => {
+      // Keep track of trimmed envelope counts by type
+      switch (studyPayloadEnvelope.type) {
+        case "http_requests":
+          trimmedNavigationBatch.trimmedHttpRequestCount++;
+          break;
+        case "http_responses":
+          trimmedNavigationBatch.trimmedHttpResponseCount++;
+          break;
+        case "http_redirects":
+          trimmedNavigationBatch.trimmedHttpRedirectCount++;
+          break;
+        case "javascript":
+          trimmedNavigationBatch.trimmedJavascriptOperationCount++;
+          break;
+      }
+    });
   }
 
   private async dropOpenWpmPayloadAndSendStudyPayloadEnvelope(
@@ -323,10 +314,27 @@ export class TelemetrySender {
   private async sendTelemetry(
     acceptablySizedReadyForSending: StringifiedStudyTelemetryPacket,
   ) {
-    console.log(
-      "acceptablySizedReadyForSending",
-      acceptablySizedReadyForSending,
+    const calculatedPingSize = parseInt(
+      acceptablySizedReadyForSending.calculatedPingSize,
+      10,
     );
+    const originalCalculatedPingSize = parseInt(
+      acceptablySizedReadyForSending.originalCalculatedPingSize,
+      10,
+    );
+
+    let logMessage;
+    logMessage = `Calculated ping size of the submitted ${
+      acceptablySizedReadyForSending.type
+    } ping: ${humanFileSize(calculatedPingSize)}`;
+    if (originalCalculatedPingSize > thresholdSize) {
+      logMessage += ` - trimmed down from ${humanFileSize(
+        originalCalculatedPingSize,
+      )} since the size exceeded 500kb`;
+    }
+    await browser.study.logger.log(logMessage);
+
+    // console.log("acceptablySizedReadyForSending", acceptablySizedReadyForSending);
     return browser.study.sendTelemetry(acceptablySizedReadyForSending);
   }
 }

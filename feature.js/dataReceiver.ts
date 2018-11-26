@@ -91,7 +91,7 @@ export const saveRecord = async function(instrument, record) {
   ) {
     return;
   }
-  await browser.study.logger.log(
+  await browser.study.logger.info(
     `OpenWPM ${instrument} instrumentation package received`,
   );
   // Annotate tab active dwell time
