@@ -1,10 +1,18 @@
 import { assert } from "chai";
 import {
+  NavigationBatch,
   OpenWPMType,
   StudyPayloadEnvelope,
   StudyPayloadPreprocessor,
 } from "./StudyPayloadPreprocessor";
 import { parseIsoDateTimeString } from "./dateUtils";
+import { addSeconds } from "date-fns";
+import {
+  HttpRedirect,
+  HttpRequest,
+  HttpResponse,
+  JavascriptOperation,
+} from "openwpm-webext-instrumentation";
 
 describe("StudyPayloadPreprocessor", function() {
   it("should exist", function() {
@@ -13,13 +21,15 @@ describe("StudyPayloadPreprocessor", function() {
   });
 
   const firstVisitIsoDateTimeString = "2018-11-23T01:34:40.475Z";
-  const secondVisitIsoDateTimeString = "2018-11-23T01:34:45.488Z";
+  // const secondVisitIsoDateTimeString = "2018-11-23T01:34:45.488Z";
   const firstVisitDateTime = parseIsoDateTimeString(
     firstVisitIsoDateTimeString,
   );
+  /*
   const secondVisitDateTime = parseIsoDateTimeString(
     secondVisitIsoDateTimeString,
   );
+  */
 
   describe("Example.com visit", function() {
     const exampleDotComVisitQueue: StudyPayloadEnvelope[] = [
@@ -160,23 +170,46 @@ describe("StudyPayloadPreprocessor", function() {
     const studyPayloadPreprocessor = new StudyPayloadPreprocessor();
     exampleDotComVisitQueue.map(
       (studyPayloadEnvelope: StudyPayloadEnvelope) => {
-        studyPayloadPreprocessor.addToQueue(studyPayloadEnvelope);
+        if (studyPayloadPreprocessor.shouldBeBatched(studyPayloadEnvelope)) {
+          studyPayloadPreprocessor.queueForProcessing(studyPayloadEnvelope);
+        }
       },
     );
 
     describe("Queue processing 5 seconds after the visit", function() {
-      const nowIsoDateTimeString = "2018-11-23T01:20:08.260Z";
-      const nowDateTime = parseIsoDateTimeString(nowIsoDateTimeString);
+      const nowDateTime = addSeconds(firstVisitDateTime, 5);
       it("should not yield any navigation batches to send", function() {
-        studyPayloadPreprocessor.processQueue();
-        assert.equal(1, 1);
+        studyPayloadPreprocessor.navigationBatchSendQueue = [];
+        studyPayloadPreprocessor.processQueue(nowDateTime);
+        assert.equal(
+          studyPayloadPreprocessor.navigationBatchSendQueue.length,
+          0,
+        );
       });
     });
 
     describe("Queue processing 20 seconds after the visit", function() {
+      const nowDateTime = addSeconds(firstVisitDateTime, 20);
       it("should yield relevant navigation batches to send", function() {
-        studyPayloadPreprocessor.processQueue();
-        assert.equal(1, 1);
+        studyPayloadPreprocessor.navigationBatchSendQueue = [];
+        studyPayloadPreprocessor.processQueue(nowDateTime);
+        assert.equal(
+          studyPayloadPreprocessor.studyPayloadEnvelopeProcessQueue.length,
+          0,
+        );
+        assert.equal(
+          studyPayloadPreprocessor.navigationBatchSendQueue.length,
+          1,
+        );
+        const firstNavigationBatch: NavigationBatch =
+          studyPayloadPreprocessor.navigationBatchSendQueue[0];
+        assert.equal(firstNavigationBatch.httpRequestEnvelopes.length, 2);
+        assert.equal(firstNavigationBatch.httpResponseEnvelopes.length, 2);
+        assert.equal(firstNavigationBatch.httpRedirectEnvelopes.length, 0);
+        assert.equal(
+          firstNavigationBatch.javascriptOperationEnvelopes.length,
+          0,
+        );
       });
     });
   });
@@ -929,35 +962,87 @@ describe("StudyPayloadPreprocessor", function() {
     const studyPayloadPreprocessor = new StudyPayloadPreprocessor();
     exampleDotComVisitFollowedByMoreInformationLinkClickQueue.map(
       (studyPayloadEnvelope: StudyPayloadEnvelope) => {
-        studyPayloadPreprocessor.addToQueue(studyPayloadEnvelope);
+        if (studyPayloadPreprocessor.shouldBeBatched(studyPayloadEnvelope)) {
+          studyPayloadPreprocessor.queueForProcessing(studyPayloadEnvelope);
+        }
       },
     );
 
     describe("Queue processing 5 seconds after the first visit (around the time of the second visit)", function() {
+      const nowDateTime = addSeconds(firstVisitDateTime, 5);
       it("should not yield any navigation batches to send", function() {
-        studyPayloadPreprocessor.processQueue();
-        assert.equal(1, 1);
+        studyPayloadPreprocessor.navigationBatchSendQueue = [];
+        studyPayloadPreprocessor.processQueue(nowDateTime);
+        assert.equal(
+          studyPayloadPreprocessor.navigationBatchSendQueue.length,
+          0,
+        );
       });
     });
 
     describe("Subsequent queue processing 12 seconds after the visit (around 7 seconds after the second visit)", function() {
+      const nowDateTime = addSeconds(firstVisitDateTime, 12);
       it("should yield relevant navigation batches to send", function() {
-        studyPayloadPreprocessor.processQueue();
-        assert.equal(1, 1);
+        studyPayloadPreprocessor.navigationBatchSendQueue = [];
+        studyPayloadPreprocessor.processQueue(nowDateTime);
+        assert.equal(
+          studyPayloadPreprocessor.studyPayloadEnvelopeProcessQueue.length,
+          23,
+        );
+        assert.equal(
+          studyPayloadPreprocessor.navigationBatchSendQueue.length,
+          1,
+        );
+        const firstNavigationBatch: NavigationBatch =
+          studyPayloadPreprocessor.navigationBatchSendQueue[0];
+        assert.equal(firstNavigationBatch.httpRequestEnvelopes.length, 2);
+        assert.equal(firstNavigationBatch.httpResponseEnvelopes.length, 2);
+        assert.equal(firstNavigationBatch.httpRedirectEnvelopes.length, 0);
+        assert.equal(
+          firstNavigationBatch.javascriptOperationEnvelopes.length,
+          0,
+        );
       });
     });
 
     describe("Subsequent queue processing 17 seconds after the visit (around 12 seconds after the second visit)", function() {
+      const nowDateTime = addSeconds(firstVisitDateTime, 17);
       it("should yield relevant navigation batches to send", function() {
-        studyPayloadPreprocessor.processQueue();
-        assert.equal(1, 1);
+        studyPayloadPreprocessor.navigationBatchSendQueue = [];
+        studyPayloadPreprocessor.processQueue(nowDateTime);
+        assert.equal(
+          studyPayloadPreprocessor.studyPayloadEnvelopeProcessQueue.length,
+          0,
+        );
+        assert.equal(
+          studyPayloadPreprocessor.navigationBatchSendQueue.length,
+          1,
+        );
+        const firstNavigationBatch: NavigationBatch =
+          studyPayloadPreprocessor.navigationBatchSendQueue[0];
+        assert.equal(firstNavigationBatch.httpRequestEnvelopes.length, 11);
+        assert.equal(firstNavigationBatch.httpResponseEnvelopes.length, 10);
+        assert.equal(firstNavigationBatch.httpRedirectEnvelopes.length, 1);
+        assert.equal(
+          firstNavigationBatch.javascriptOperationEnvelopes.length,
+          0,
+        );
       });
     });
 
     describe("Subsequent queue processing 25 seconds after the visit (around 20 seconds after the second visit)", function() {
-      it("should yield relevant navigation batches to send", function() {
-        studyPayloadPreprocessor.processQueue();
-        assert.equal(1, 1);
+      const nowDateTime = addSeconds(firstVisitDateTime, 25);
+      it("should not yield any navigation batches to send", function() {
+        studyPayloadPreprocessor.navigationBatchSendQueue = [];
+        studyPayloadPreprocessor.processQueue(nowDateTime);
+        assert.equal(
+          studyPayloadPreprocessor.studyPayloadEnvelopeProcessQueue.length,
+          0,
+        );
+        assert.equal(
+          studyPayloadPreprocessor.navigationBatchSendQueue.length,
+          0,
+        );
       });
     });
   });

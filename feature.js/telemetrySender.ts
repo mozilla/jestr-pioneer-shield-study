@@ -15,16 +15,17 @@ declare namespace browser.privacyContext {
 import {
   OpenWPMType,
   StudyPayloadEnvelope,
+  studyPayloadEnvelopeFromOpenWpmTypeAndPayload,
   StudyPayloadPreprocessor,
   StudyTelemetryPacket,
-} from "./studyPayloadPreprocessor";
+} from "./StudyPayloadPreprocessor";
 
 /**
  * Shield utils schema requires all study telemetry packet
  * attributes to be strings
  */
 export interface StringifiedStudyTelemetryPacket {
-  type?: string;
+  type: string;
   navigation?: string;
   navigationBatch?: string;
   httpRequest?: string;
@@ -34,8 +35,8 @@ export interface StringifiedStudyTelemetryPacket {
   javascriptCookieRecord?: string;
   logEntry?: string;
   capturedContent?: string;
-  calculatedPingSize?: string;
-  calculatedPingSizeOverThreshold?: string;
+  calculatedPingSize: string;
+  calculatedPingSizeOverThreshold: string;
   tabActiveDwellTime?: string;
 }
 
@@ -57,40 +58,28 @@ export class TelemetrySender {
     }
 
     const studyPayloadEnvelope: StudyPayloadEnvelope = {
-      type,
-      navigation: type === "navigations" ? payload : undefined,
-      navigationBatch: type === "navigation_batches" ? payload : undefined,
-      httpRequest: type === "http_requests" ? payload : undefined,
-      httpResponse: type === "http_responses" ? payload : undefined,
-      httpRedirect: type === "http_redirects" ? payload : undefined,
-      javascriptOperation: type === "javascript" ? payload : undefined,
-      javascriptCookieRecord:
-        type === "javascript_cookies" ? payload : undefined,
-      logEntry: type === "openwpm_log" ? payload : undefined,
-      capturedContent:
-        type === "openwpm_captured_content" ? payload : undefined,
+      ...studyPayloadEnvelopeFromOpenWpmTypeAndPayload(type, payload),
       tabActiveDwellTime,
     };
 
+    return this.queueOrSend(studyPayloadEnvelope);
+  }
+
+  private async queueOrSend(studyPayloadEnvelope: StudyPayloadEnvelope) {
     // Any http or javascript packet with tabId is sent for batching by corresponding navigation
     // or dropped (if no corresponding navigation showed up)
-    if (
-      [
-        "navigations",
-        "http_requests",
-        "http_responses",
-        "http_redirects",
-        "javascript",
-      ].includes(type) &&
-      payload.extension_session_uuid &&
-      payload.window_id > -1 &&
-      payload.tab_id > -1 &&
-      payload.frame_id > -1
-    ) {
-      this.studyPayloadPreprocessor.addToQueue(studyPayloadEnvelope);
+    if (this.studyPayloadPreprocessor.shouldBeBatched(studyPayloadEnvelope)) {
+      this.studyPayloadPreprocessor.queueForProcessing(studyPayloadEnvelope);
+      // TODO: debounce with timeout to send any batched payloads
       return;
     }
 
+    return this.sendStudyPayloadEnvelope(studyPayloadEnvelope);
+  }
+
+  private async sendStudyPayloadEnvelope(
+    studyPayloadEnvelope: StudyPayloadEnvelope,
+  ) {
     const studyTelemetryPacket: StudyTelemetryPacket = {
       ...studyPayloadEnvelope,
       calculatedPingSize: "0000000000", // Will be replaced below with the real (approximate) calculated ping size
@@ -105,27 +94,11 @@ export class TelemetrySender {
     return this.sendTelemetry(acceptableStringifiedStudyTelemetryPacket);
   }
 
-  stringifyPayload(
+  private stringifyPayload(
     studyTelemetryPacket: StudyTelemetryPacket,
   ): StringifiedStudyTelemetryPacket {
-    return {
+    const stringifiedStudyTelemetryPacket: StringifiedStudyTelemetryPacket = {
       type: JSON.stringify(studyTelemetryPacket.type),
-      navigation: JSON.stringify(studyTelemetryPacket.navigation),
-      navigationBatch: JSON.stringify(studyTelemetryPacket.navigationBatch),
-      httpRequest: JSON.stringify(studyTelemetryPacket.httpRequest),
-      httpResponse: JSON.stringify(studyTelemetryPacket.httpResponse),
-      httpRedirect: JSON.stringify(studyTelemetryPacket.httpRedirect),
-      javascriptOperation: JSON.stringify(
-        studyTelemetryPacket.javascriptOperation,
-      ),
-      javascriptCookieRecord: JSON.stringify(
-        studyTelemetryPacket.javascriptCookieRecord,
-      ),
-      logEntry: JSON.stringify(studyTelemetryPacket.logEntry),
-      capturedContent: JSON.stringify(studyTelemetryPacket.capturedContent),
-      tabActiveDwellTime: JSON.stringify(
-        studyTelemetryPacket.tabActiveDwellTime,
-      ),
       calculatedPingSize: JSON.stringify(
         studyTelemetryPacket.calculatedPingSize,
       ),
@@ -133,9 +106,31 @@ export class TelemetrySender {
         studyTelemetryPacket.calculatedPingSizeOverThreshold,
       ),
     };
+    [
+      "navigation",
+      "navigationBatch",
+      "httpRequest",
+      "httpResponse",
+      "httpRedirect",
+      "javascriptOperation",
+      "javascriptCookieRecord",
+      "logEntry",
+      "capturedContent",
+      "tabActiveDwellTime",
+    ].map(attributeToStringifyIfExists => {
+      if (
+        typeof studyTelemetryPacket[attributeToStringifyIfExists] !==
+        "undefined"
+      ) {
+        stringifiedStudyTelemetryPacket[
+          attributeToStringifyIfExists
+        ] = JSON.stringify(studyTelemetryPacket[attributeToStringifyIfExists]);
+      }
+    });
+    return stringifiedStudyTelemetryPacket;
   }
 
-  async ensurePingSizeUnderThreshold(
+  private async ensurePingSizeUnderThreshold(
     stringifiedStudyTelemetryPacket: StringifiedStudyTelemetryPacket,
   ) {
     const calculatedPingSize = await browser.study.calculateTelemetryPingSize(
@@ -168,7 +163,7 @@ export class TelemetrySender {
     return stringifiedStudyTelemetryPacket;
   }
 
-  async sendTelemetry(
+  private async sendTelemetry(
     acceptableStringifiedStudyTelemetryPacket: StringifiedStudyTelemetryPacket,
   ) {
     return browser.study.sendTelemetry(
