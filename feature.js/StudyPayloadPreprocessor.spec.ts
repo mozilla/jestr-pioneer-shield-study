@@ -247,4 +247,81 @@ describe("StudyPayloadPreprocessor", function() {
       });
     });
   });
+
+  describe("Process large navigation batch from modified OpenWPM http://localtest.me:8000/test_pages/canvas_fingerprinting.html queue", function() {
+    // Inject two large values
+    const largeOpenwpmTestPagesCanvasFingerprintingQueue = JSON.parse(
+      JSON.stringify(openwpmTestPagesCanvasFingerprintingQueue),
+    );
+    const str300kb = "01234567890".repeat(100 * 300);
+    largeOpenwpmTestPagesCanvasFingerprintingQueue[3].javascriptOperation.value = str300kb;
+    largeOpenwpmTestPagesCanvasFingerprintingQueue[10].javascriptOperation.value = str300kb;
+
+    const studyPayloadPreprocessor = new StudyPayloadPreprocessor();
+    largeOpenwpmTestPagesCanvasFingerprintingQueue.map(
+      (studyPayloadEnvelope: StudyPayloadEnvelope) => {
+        if (studyPayloadPreprocessor.shouldBeBatched(studyPayloadEnvelope)) {
+          studyPayloadPreprocessor.queueForProcessing(studyPayloadEnvelope);
+        }
+      },
+    );
+
+    const firstVisitIsoDateTimeString = "2018-11-26T14:11:51.759Z";
+    const firstVisitDateTime = parseIsoDateTimeString(
+      firstVisitIsoDateTimeString,
+    );
+
+    describe("Queue processing 5 seconds after the visit", function() {
+      const nowDateTime = addSeconds(firstVisitDateTime, 5);
+      it("should not yield any navigation batches to send", async function() {
+        studyPayloadPreprocessor.navigationBatchSendQueue = [];
+        await studyPayloadPreprocessor.processQueue(nowDateTime);
+        assert.equal(
+          studyPayloadPreprocessor.navigationBatchSendQueue.length,
+          0,
+        );
+      });
+    });
+
+    describe("Queue processing 20 seconds after the visit", function() {
+      const nowDateTime = addSeconds(firstVisitDateTime, 20);
+      it("should yield relevant navigation batches to send", async function() {
+        studyPayloadPreprocessor.navigationBatchSendQueue = [];
+        await studyPayloadPreprocessor.processQueue(nowDateTime);
+        assert.equal(
+          studyPayloadPreprocessor.studyPayloadEnvelopeProcessQueue.length,
+          0,
+        );
+        assert.equal(
+          studyPayloadPreprocessor.navigationBatchSendQueue.length,
+          1,
+        );
+        const firstNavigationBatch: NavigationBatch =
+          studyPayloadPreprocessor.navigationBatchSendQueue[0];
+        assert.equal(firstNavigationBatch.childEnvelopes.length, 15);
+        const {
+          httpRequestCount,
+          httpResponseCount,
+          httpRedirectCount,
+          javascriptOperationCount,
+        } = firstNavigationBatch;
+        assert.deepStrictEqual(
+          [
+            httpRequestCount,
+            httpResponseCount,
+            httpRedirectCount,
+            javascriptOperationCount,
+          ],
+          [2, 2, 0, 11],
+        );
+
+        /*
+        await this.telemetrySender.sendStudyPayloadEnvelope(
+          studyPayloadEnvelope,
+        );
+        */
+
+      });
+    });
+  });
 });
