@@ -43,3 +43,5 @@ The add-on listens to navigation, web requests, cookie modifications and access 
 ```
 
 The packets received from the instrumentation are in turn encapsulated in objects of type [`StudyTelemetryPacket`](../feature.js/StudyPayloadPreprocessor.ts) and sent as encrypted telemetry packages using [shield-studies-addon-utils](https://github.com/mozilla/shield-studies-addon-utils) ([PR](https://github.com/mozilla/shield-studies-addon-utils/pull/263)).
+
+Note: [Most JS and HTTP packets are grouped together with their corresponding web navigation](https://github.com/motin/jestr-pioneer-shield-study/issues/10)

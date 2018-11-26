@@ -42,6 +42,7 @@ No user interface elements are modified in this study.
 
 - Install the add-on as per above
 - Verify that the study runs
+- Set/reset `shieldStudy.logLevel` to its default value for new profiles
 - Make sure that the add-on is not causing UI freezes on any platform
 
 **Enabling of permanent private browsing before study has begun**
@@ -65,8 +66,11 @@ No user interface elements are modified in this study.
 
 ### Note: checking "sent Telemetry is correct"
 
-- Set `shieldStudy.logLevel` to `all`. This permits debug-level shield-add-on log output in the browser console. Note that this will negatively affect the performance of Firefox.
 - Open the Browser Console using Firefox's top menu at `Tools > Web Developer > Browser Console`. This will display Shield (loading/telemetry) log output from the add-on.
+- To get an idea of how often telemetry is sent and calculated ping sizes, set `shieldStudy.logLevel` to `log`. This permits log-level shield-add-on log output in the browser console which includes high-level log messages regarding sent telemetry payloads.
+- To get an idea of how often [OpenWPM](https://github.com/mozilla/openwpm-webext-instrumentation) instruments a JS/HTTP/COOKIE event, set `shieldStudy.logLevel` to `info`. This permits info-level shield-add-on log output in the browser console which includes high-level log messages regarding received OpenWPM packages.
+- To inspect the unencrypted contents individual telemetry packets, set `shieldStudy.logLevel` to `all`. This permits debug-level shield-add-on log output in the browser console. Note that this will negatively affect the performance of Firefox.
+- To see the actual (encrypted) payloads, go to `about:telemetry` -> Click `current ping` -> Select `Archived ping data` -> Ping Type `pioneer-study` -> Choose a payload -> Raw Payload
 
 See [TELEMETRY.md](./TELEMETRY.md) for more details on what pings are sent by this add-on.
 
