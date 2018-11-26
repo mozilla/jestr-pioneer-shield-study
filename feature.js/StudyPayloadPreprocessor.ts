@@ -9,7 +9,7 @@ import {
 } from "openwpm-webext-instrumentation";
 import { CapturedContent, LogEntry } from "./dataReceiver";
 import { parse } from "date-fns";
-import { TelemetrySender } from "./telemetrySender";
+import { TelemetrySender } from "./TelemetrySender";
 import { isoDateTimeStringsWithinFutureSecondThreshold } from "./dateUtils";
 
 declare namespace browser.study {

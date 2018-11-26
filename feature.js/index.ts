@@ -28,7 +28,6 @@ import {
   HttpInstrument,
   NavigationInstrument,
 } from "openwpm-webext-instrumentation";
-// import { telemetrySender } from "./telemetrySender";
 
 class Feature {
   private navigationInstrument;
