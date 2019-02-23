@@ -96,7 +96,7 @@ async function isCurrentlyEligible(studySetup) {
  *       allowed to enroll in the study
  */
 /*
-async function cachingFirstRunShouldAllowEnroll(studySetup) {
+async function wasEligibleAtFirstRun(studySetup) {
   // Cached answer.  Used on 2nd run
   const localStorageResult = await browser.storage.local.get(
     "allowedEnrollOnFirstRun",
@@ -106,7 +106,6 @@ async function cachingFirstRunShouldAllowEnroll(studySetup) {
   // First run, we must calculate the answer.
   // If false, the study will endStudy with 'ineligible' during `setup`
   const allowed = await isCurrentlyEligible(studySetup);
-  // could have other reasons to be eligible, such add-ons, prefs
 
   // cache the answer
   await browser.storage.local.set({ allowedEnrollOnFirstRun: allowed });
@@ -125,8 +124,8 @@ async function getStudySetup() {
 
   // Since our eligibility criterias are not dependent on the state of the first run only
   // but rather should be checked on every browser launch, we skip the use
-  // of cachingFirstRunShouldAllowEnroll
-  // studySetup.allowEnroll = await cachingFirstRunShouldAllowEnroll(studySetup);
+  // of wasEligibleAtFirstRun
+  // studySetup.allowEnroll = await wasEligibleAtFirstRun(studySetup);
   studySetup.allowEnroll = await isCurrentlyEligible(studySetup);
 
   const testingOverrides = await browser.study.getTestingOverrides();
