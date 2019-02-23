@@ -73,9 +73,7 @@ async function isCurrentlyEligible(studySetup) {
   }
   // Users with private browsing on autostart are not eligible
   if (await browser.privacyContext.permanentPrivateBrowsing()) {
-    await browser.taarStudyMonitor.log(
-      "Permanent private browsing, exiting study",
-    );
+    await browser.study.logger.log("Permanent private browsing, exiting study");
     allowed = false;
   }
   return allowed;
