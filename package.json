@@ -10,7 +10,7 @@
     "date-fns": "^2.0.0-alpha.25",
     "idb": "^2.0.4",
     "openwpm-webext-instrumentation": "github:mozilla/openwpm-webext-instrumentation#enhancements-batch-2",
-    "shield-studies-addon-utils": "github:motin/shield-studies-addon-utils#issues-142-and-128-support-pioneer-pipeline"
+    "shield-studies-addon-utils": "5.2.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
