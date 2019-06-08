@@ -99,6 +99,56 @@ See [TESTPLAN.md](./TESTPLAN.md) for more details on how to see this add-on in a
 npm run format
 ```
 
+## Generate stub code and API docs
+
+```shell
+npm run generate
+```
+
+Generates stub code and API docs from `src/privileged/*/schema.yaml` using <https://github.com/motin/webext-experiment-utils>.
+
+## Manual testing
+
+Launch the built add-on as already expired study:
+
+```shell
+EXPIRED=1 npm run test:manual
+```
+
+Launch the built add-on as expiring within a few seconds:
+
+```shell
+EXPIRE_IN_SECONDS=5 npm run test:manual
+```
+
+Launch the built add-on as with a specific variation set:
+
+```shell
+BRANCH=control npm run test:manual
+```
+
+For more options, see the code at [./run-firefox.js](./run-firefox.js).
+
+## Automated testing
+
+```shell
+npm test
+```
+
+Runs unit tests using Karma.
+
+Code at [./test/unit/](./test/unit/). Configuration at [./karma.conf.js](./karma.conf.js).
+
+Code coverage is instrumented by the istanbul babel plugin and is only enabled and reported for those files that use the babel preprocessor in [./karma.conf.js](./karma.conf.js).
+
+Note: [The karma firefox launcher](https://github.com/karma-runner/karma-firefox-launcher) expects that the firefox binaries are located in slightly different places than `web-ext`. Example on how to workaround this on OSX:
+
+```shell
+cd /Applications/
+ln -s FirefoxBeta.app FirefoxAurora.app
+ln -s Firefox\ Nightly.app FirefoxNightly.app
+```
+
 ## General Shield Study Engineering
 
 Shield study add-ons are web extensions (`src/`) with at least one background script (`src/background.js`) and one or more embedded Web Extension Experiments (`src/privileged/*/api.js`) that allows them to run privileged code.
