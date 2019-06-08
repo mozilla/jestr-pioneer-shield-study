@@ -9,7 +9,7 @@
   "dependencies": {
     "date-fns": "^2.0.0-alpha.25",
     "idb": "^2.0.4",
-    "openwpm-webext-instrumentation": "github:mozilla/openwpm-webext-instrumentation#enhancements-batch-2",
+    "openwpm-webext-instrumentation": "github:mozilla/openwpm-webext-instrumentation#0.3.0",
     "shield-studies-addon-utils": "^5.3.0"
   },
   "devDependencies": {
