@@ -6,7 +6,7 @@
   "applications": {
     "gecko": {
       "id": "jestr-pioneer-shield-study@pioneer.mozilla.org",
-      "strict_min_version": "61.0a1"
+      "strict_min_version": "67.0a1"
     }
   },
   "default_locale": "en-US",
