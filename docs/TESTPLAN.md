@@ -1,7 +1,6 @@
 # Test plan for this add-on
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
-
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 **Contents**
@@ -10,8 +9,7 @@
   - [Preparations](#preparations)
   - [Install the add-on and enroll in the study](#install-the-add-on-and-enroll-in-the-study)
 - [Expected User Experience / Functionality](#expected-user-experience--functionality)
-  - [Do these tests](#do-these-tests)
-  - [Design](#design)
+  - [Do these tests (in addition to ordinary regression tests)](#do-these-tests-in-addition-to-ordinary-regression-tests)
   - [Note: checking "sent Telemetry is correct"](#note-checking-sent-telemetry-is-correct)
 - [Debug](#debug)
 

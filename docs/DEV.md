@@ -1,7 +1,6 @@
 # Developing this add-on
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
-
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 **Contents**
@@ -11,10 +10,7 @@
 - [Details](#details)
 - [Loading the Web Extension in Firefox](#loading-the-web-extension-in-firefox)
 - [Seeing the add-on in action](#seeing-the-add-on-in-action)
-- [Automated testing](#automated-testing)
-  - [Unit tests](#unit-tests)
-  - [Functional tests](#functional-tests)
-- [Directory Structure and Files](#directory-structure-and-files)
+- [Format code using prettier and eslint --fix](#format-code-using-prettier-and-eslint---fix)
 - [General Shield Study Engineering](#general-shield-study-engineering)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->

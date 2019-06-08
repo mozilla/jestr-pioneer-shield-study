@@ -1,7 +1,6 @@
 # Telemetry sent by this add-on
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
-
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 **Contents**
@@ -10,7 +9,7 @@
 - [Study-specific endings](#study-specific-endings)
 - [`shield-study` pings (common to all shield-studies)](#shield-study-pings-common-to-all-shield-studies)
 - [`shield-study-addon` pings, specific to THIS study.](#shield-study-addon-pings-specific-to-this-study)
-- [Example sequence for a 'voted => not sure' interaction](#example-sequence-for-a-voted--not-sure-interaction)
+- [Performance optimizations affecting submitted telemetry](#performance-optimizations-affecting-submitted-telemetry)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
