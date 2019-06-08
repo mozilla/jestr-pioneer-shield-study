@@ -37,7 +37,29 @@ const baseStudySetup = {
 
   // endings with urls
   endings: {
-    /** standard endings */
+    /** normandy-defined endings - https://firefox-source-docs.mozilla.org/toolkit/components/normandy/normandy/data-collection.html */
+    "install-failure": {
+      baseUrls: [],
+    },
+    "individual-opt-out": {
+      baseUrls: [],
+    },
+    "general-opt-out": {
+      baseUrls: [],
+    },
+    "recipe-not-seen": {
+      baseUrls: [],
+    },
+    uninstalled: {
+      baseUrls: [],
+    },
+    "uninstalled-sideload": {
+      baseUrls: [],
+    },
+    unknown: {
+      baseUrls: [],
+    },
+    /** study-utils-defined endings */
     "user-disable": {
       baseUrls: [],
     },
@@ -136,6 +158,41 @@ async function getStudySetup() {
     expired: testingOverrides.expired,
   };
   // TODO: Possible add testing override for studySetup.telemetry.internalTelemetryArchive
+
+  // Set testing flag on shield-study-addon pings in case any testing override is set
+  if (studySetup.testing.variationName !== null) {
+    await browser.study.logger.log(
+      `Note: The branch/variation is overridden for testing purposes ("${
+        studySetup.testing.variationName
+      }")`,
+    );
+    studySetup.telemetry.removeTestingFlag = false;
+  }
+  if (studySetup.testing.firstRunTimestamp !== null) {
+    await browser.study.logger.log(
+      `Note: The firstRunTimestamp property is set to "${JSON.stringify(
+        studySetup.testing.firstRunTimestamp,
+      )}" for testing purposes `,
+    );
+    studySetup.telemetry.removeTestingFlag = false;
+  }
+  if (studySetup.testing.expired !== null) {
+    await browser.study.logger.log(
+      `Note: The expired flag is set to "${JSON.stringify(
+        studySetup.testing.expired,
+      )}" for testing purposes `,
+    );
+    studySetup.telemetry.removeTestingFlag = false;
+  }
+
+  // Set testing flag on shield-study-addon pings in case the model url endpoint is overridden for testing purposes
+  const modelUrlEndPointOverride = await browser.testingOverrides.getModelUrlEndpointOverride();
+  if (modelUrlEndPointOverride !== "") {
+    await browser.study.logger.log(
+      `Note: The model url endpoint is overridden for testing purposes ("${modelUrlEndPointOverride}")`,
+    );
+    studySetup.telemetry.removeTestingFlag = false;
+  }
 
   return studySetup;
 }
