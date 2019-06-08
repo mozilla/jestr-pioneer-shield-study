@@ -79,7 +79,12 @@ class StudyLifeCycleHandler {
   async enableFeature(studyInfo) {
     await browser.study.logger.log(["Enabling experiment", studyInfo]);
     const { delayInMinutes } = studyInfo;
-    if (delayInMinutes !== undefined) {
+    // Study utils has guaranteed that the study has not yet expired
+    // but we have to schedule the expiration so that it indeed expires
+    // when it is supposed to
+    const theStudyExpiresInThisManyMinutes = delayInMinutes;
+    if (theStudyExpiresInThisManyMinutes !== undefined) {
+      await browser.study.logger.log("Scheduling study expiration");
       const alarmName = this.expirationAlarmName;
       const alarmListener = async alarm => {
         if (alarm.name === alarmName) {
@@ -89,7 +94,7 @@ class StudyLifeCycleHandler {
       };
       browser.alarms.onAlarm.addListener(alarmListener);
       browser.alarms.create(alarmName, {
-        delayInMinutes,
+        delayInMinutes: theStudyExpiresInThisManyMinutes,
       });
     }
     return feature.configure(studyInfo);
