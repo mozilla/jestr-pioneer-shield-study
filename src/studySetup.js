@@ -64,6 +64,7 @@ const baseStudySetup = {
 };
 
 async function isCurrentlyEligible(studySetup) {
+  let allowed;
   const dataPermissions = await browser.study.getDataPermissions();
   if (studySetup.studyType === "shield") {
     allowed = dataPermissions.shield;
