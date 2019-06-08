@@ -10,6 +10,8 @@ const STUDY_TYPE = /* process.env.STUDY_TYPE || */ "pioneer";
 const LOG_LEVEL = process.env.LOG_LEVEL || "info";
 const EXPIRE_SECONDS = process.env.EXPIRE_SECONDS || false;
 const EXPIRED = process.env.EXPIRED || false;
+const SLUMBER_START_DAY = process.env.SLUMBER_START_DAY || false;
+const SLUMBER_END_DAY = process.env.SLUMBER_END_DAY || false;
 
 const run = async studyType => {
   const driver = await utils.setupWebdriver.promiseSetupDriver(
@@ -44,6 +46,20 @@ const run = async studyType => {
       driver,
       `extensions.${widgetId}.test.expired`,
       true,
+    );
+  }
+  if (SLUMBER_START_DAY) {
+    await utils.preferences.set(
+      driver,
+      `extensions.${widgetId}.test.slumberStartDayOverride`,
+      SLUMBER_START_DAY,
+    );
+  }
+  if (SLUMBER_END_DAY) {
+    await utils.preferences.set(
+      driver,
+      `extensions.${widgetId}.test.slumberEndDayOverride`,
+      SLUMBER_END_DAY,
     );
   }
   await utils.preferences.set(driver, `shieldStudy.logLevel`, LOG_LEVEL);

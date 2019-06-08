@@ -127,6 +127,12 @@ Launch the built add-on as with a specific variation set:
 BRANCH=control npm run test:manual
 ```
 
+Launch the built add-on with a very early and very short slumber period for testing purposes:
+
+```shell
+SLUMBER_START_DAY=0.0001 SLUMBER_END_DAY=0.0002 npm run test:manual
+```
+
 For more options, see the code at [./run-firefox.js](./run-firefox.js).
 
 ## Automated testing

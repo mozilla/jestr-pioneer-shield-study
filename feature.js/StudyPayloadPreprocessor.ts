@@ -258,6 +258,8 @@ export class StudyPayloadPreprocessor {
     if (this.alarmName) {
       await browser.alarms.clear(this.alarmName);
     }
+    this.studyPayloadEnvelopeProcessQueue = [];
+    this.navigationBatchSendQueue = [];
   }
 
   /**

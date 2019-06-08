@@ -32,6 +32,10 @@
  *
  */
 
+let studyLengthInDays;
+const defaultSlumberStartDay = 7;
+const defaultSlumberEndDay = 14;
+
 class StudyLifeCycleHandler {
   /**
    * Listen to onEndStudy, onReady
@@ -49,6 +53,8 @@ class StudyLifeCycleHandler {
     browser.study.onEndStudy.addListener(this.handleStudyEnding.bind(this));
     browser.study.onReady.addListener(this.enableFeature.bind(this));
     this.expirationAlarmName = `${browser.runtime.id}:studyExpiration`;
+    this.slumberStartAlarmName = `${browser.runtime.id}:slumberStart`;
+    this.slumberStopAlarmName = `${browser.runtime.id}:slumberStop`;
   }
 
   /**
@@ -63,6 +69,8 @@ class StudyLifeCycleHandler {
   async cleanup() {
     await browser.storage.local.clear();
     await browser.alarms.clear(this.expirationAlarmName);
+    await browser.alarms.clear(this.slumberStartAlarmName);
+    await browser.alarms.clear(this.slumberStopAlarmName);
     await feature.cleanup();
   }
 
@@ -84,7 +92,7 @@ class StudyLifeCycleHandler {
     // when it is supposed to
     const theStudyExpiresInThisManyMinutes = delayInMinutes;
     if (theStudyExpiresInThisManyMinutes !== undefined) {
-      await browser.study.logger.log("Scheduling study expiration");
+      await browser.study.logger.log(`Scheduling study expiration in ${delayInMinutes/24/60} days`);
       const alarmName = this.expirationAlarmName;
       const alarmListener = async alarm => {
         if (alarm.name === alarmName) {
@@ -97,7 +105,122 @@ class StudyLifeCycleHandler {
         delayInMinutes: theStudyExpiresInThisManyMinutes,
       });
     }
-    return feature.configure(studyInfo);
+
+    // Figure out where in the study life-cycle we are and schedule appropriate
+    // actions based on this
+
+    const studyLengthInMinutes = studyLengthInDays * 24 * 60;
+    const studyDurationInMinutesSoFar =
+      studyLengthInMinutes - theStudyExpiresInThisManyMinutes;
+    const studyDurationInDaysSoFar = studyDurationInMinutesSoFar / 24 / 60;
+    const slumberStartDay = await this.slumberStartDay();
+    const slumberStartMinute = slumberStartDay * 24 * 60; // At the beginning of the start day
+    const slumberEndDay = await this.slumberEndDay();
+    const slumberEndMinute = slumberEndDay * 24 * 60; // At the beginning of the end day
+
+    await browser.study.logger.debug([
+      "Slumber debug",
+      {
+        studyLengthInDays,
+        studyLengthInMinutes,
+        studyDurationInMinutesSoFar,
+        studyDurationInDaysSoFar,
+      },
+      { slumberStartDay, slumberStartMinute, slumberEndDay, slumberEndMinute },
+    ]);
+
+    if (studyDurationInMinutesSoFar > slumberEndMinute) {
+      await browser.study.logger.log(
+        "We are back after the slumber, simply activate the study and wait for study to expire",
+      );
+      await feature.configure(studyInfo);
+    } else if (studyDurationInMinutesSoFar > slumberStartMinute) {
+      await browser.study.logger.log(
+        "We have entered the slumber period. Do not activate the study but schedule the re-activation",
+      );
+      await this.scheduleSlumberStop(
+        slumberEndMinute - studyDurationInMinutesSoFar,
+      );
+    } else {
+      await browser.study.logger.log(
+        "We have not yet entered the slumber period. Activate the study and schedule the slumber",
+      );
+      await feature.configure(studyInfo);
+      await this.scheduleSlumberStart(
+        slumberStartMinute - studyDurationInMinutesSoFar,
+      );
+      await this.scheduleSlumberStop(
+        slumberEndMinute - studyDurationInMinutesSoFar,
+      );
+    }
+
+    return true;
+  }
+
+  /**
+   * scheduleSlumberStart
+   *
+   * @param {number} delayInMinutes When to schedule
+   *
+   * @returns {undefined}
+   */
+  async scheduleSlumberStart(delayInMinutes) {
+    const alarmName = this.slumberStartAlarmName;
+    await browser.study.logger.log(
+      `Scheduling mid-study slumber to start in ${delayInMinutes} minutes (${delayInMinutes/24/60} days)`,
+    );
+    const alarmListener = async alarm => {
+      if (alarm.name === alarmName) {
+        await browser.study.logger.log(`Mid-study slumber start`);
+        browser.alarms.onAlarm.removeListener(alarmListener);
+        await feature.pause();
+      }
+    };
+    browser.alarms.onAlarm.addListener(alarmListener);
+    browser.alarms.create(alarmName, {
+      delayInMinutes,
+    });
+    return true;
+  }
+
+  async slumberStartDay() {
+    const override = await browser.testingOverrides.getSlumberStartDayOverride();
+    if (override) {
+      return override;
+    }
+    return defaultSlumberStartDay;
+  }
+
+  /**
+   * @param {number} delayInMinutes When to schedule
+   *
+   * @returns {undefined}
+   */
+  async scheduleSlumberStop(delayInMinutes) {
+    const alarmName = this.slumberStopAlarmName;
+    await browser.study.logger.log(
+      `Scheduling mid-study slumber to stop in ${delayInMinutes} minutes (${delayInMinutes/24/60} days)`,
+    );
+    const alarmListener = async alarm => {
+      if (alarm.name === alarmName) {
+        await browser.study.logger.log(`Mid-study slumber stop`);
+        browser.alarms.onAlarm.removeListener(alarmListener);
+        await feature.resume();
+      }
+    };
+    browser.alarms.onAlarm.addListener(alarmListener);
+    browser.alarms.create(alarmName, {
+      delayInMinutes,
+    });
+    return true;
+  }
+
+  async slumberEndDay() {
+    const override = await browser.testingOverrides.getSlumberEndDayOverride();
+    if (override) {
+      return override;
+    }
+    return defaultSlumberEndDay;
   }
 
   /** handles `study:end` signals
@@ -136,6 +259,7 @@ async function onEveryExtensionLoad() {
   new StudyLifeCycleHandler();
 
   const studySetup = await getStudySetup();
+  studyLengthInDays = studySetup.expire.days;
   await browser.study.logger.log([`Study setup: `, studySetup]);
   await browser.study.setup(studySetup);
 }

@@ -62,6 +62,54 @@ No user interface elements are modified in this study.
 - Verify that the study runs
 - Verify that no information is recorded and sent when private browsing mode is active
 
+**Mid-study slumber behaves properly test 1**
+
+- Install the add-on as per above
+- Verify that the study runs
+- Quit Firefox
+- Adjust the system clock so that the study is just about to have run for 7 days
+- Start Firefox
+- Verify that the study runs
+- Verify that the study add-on log out includes "We have not yet entered the slumber period. Activate the study and schedule the slumber"
+- Surf around
+- Verify that payloads are submitted
+- Verify that the study add-on log out includes "Scheduling mid-study slumber to start in # minutes", where # is a small number of minutes.
+- Wait a few minutes (for the slumber period to start)
+- Verify that the study add-on log out includes "Mid-study slumber start".
+- Surf around
+- Verify that no payloads are submitted (except for possibly those stemming from one final payload processing, shown in the logs as "Sending the X navigation batches that are old enough")
+
+**Mid-study slumber behaves properly test 2**
+
+- Install the add-on as per above
+- Verify that the study runs
+- Quit Firefox
+- Adjust the system clock so that the study is just about to have run for 14 days
+- Start Firefox
+- Verify that the study runs
+- Verify that the study add-on log out includes "We have entered the slumber period. Do not activate the study but schedule the re-activation"
+- Surf around
+- Verify that no payloads are submitted
+- Verify that the study add-on log out does not include "Scheduling mid-study slumber to start in # minutes"
+- Verify that the study add-on log out includes "Scheduling mid-study slumber to stop in # minutes", where # is a small number of minutes.
+- Wait a few minutes (for the slumber period to stop)
+- Verify that the study add-on log out includes "Mid-study slumber stop".
+- Surf around
+- Verify that payloads are submitted
+
+**Mid-study slumber behaves properly test 3**
+
+- Install the add-on as per above
+- Verify that the study runs
+- Quit Firefox
+- Adjust the system clock so that the study has run for 16 days
+- Start Firefox
+- Verify that the study runs
+- Verify that the study add-on log out includes "We are back after the slumber, simply activate the study and wait for study to expire"
+- Verify that the study add-on log out does not include "Scheduling mid-study slumber to stop in # minutes"
+- Surf around
+- Verify that payloads are submitted
+
 ### Note: checking "sent Telemetry is correct"
 
 - Open the Browser Console using Firefox's top menu at `Tools > Web Developer > Browser Console`. This will display Shield (loading/telemetry) log output from the add-on.

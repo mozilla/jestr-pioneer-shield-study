@@ -13,6 +13,9 @@ export const studyPayloadPreprocessor = new StudyPayloadPreprocessor();
 // Setup telemetry sender singleton
 const telemetrySender = new TelemetrySender(studyPayloadPreprocessor);
 
+// To be able to pause and resume data collection
+let active = true;
+
 declare namespace browser.study {
   const logger: any;
 }
@@ -38,6 +41,9 @@ const privateBrowsingActive = async () => {
 };
 
 export const logDebug = async function(msg) {
+  if (!active) {
+    return;
+  }
   if (await privateBrowsingActive()) {
     return;
   }
@@ -45,6 +51,9 @@ export const logDebug = async function(msg) {
 };
 
 export const logInfo = async function(msg) {
+  if (!active) {
+    return;
+  }
   if (await privateBrowsingActive()) {
     return;
   }
@@ -55,6 +64,9 @@ export const logInfo = async function(msg) {
 };
 
 export const logWarn = async function(msg) {
+  if (!active) {
+    return;
+  }
   if (await privateBrowsingActive()) {
     return;
   }
@@ -65,6 +77,9 @@ export const logWarn = async function(msg) {
 };
 
 export const logError = async function(msg) {
+  if (!active) {
+    return;
+  }
   if (await privateBrowsingActive()) {
     return;
   }
@@ -75,6 +90,9 @@ export const logError = async function(msg) {
 };
 
 export const logCritical = async function(msg) {
+  if (!active) {
+    return;
+  }
   if (await privateBrowsingActive()) {
     return;
   }
@@ -85,6 +103,9 @@ export const logCritical = async function(msg) {
 };
 
 export const saveRecord = async function(instrument, record) {
+  if (!active) {
+    return;
+  }
   if (
     (instrument !== "javascript_cookies" && record.incognito !== 0) ||
     (await privateBrowsingActive())
@@ -109,6 +130,9 @@ export const saveRecord = async function(instrument, record) {
 };
 
 export const saveContent = async function(content, contentHash) {
+  if (!active) {
+    return;
+  }
   if (await privateBrowsingActive()) {
     return;
   }
@@ -125,4 +149,12 @@ export const saveContent = async function(content, contentHash) {
     "openwpm_captured_content",
     capturedContent,
   );
+};
+
+export const pause = function() {
+  active = false;
+};
+
+export const resume = function() {
+  active = true;
 };

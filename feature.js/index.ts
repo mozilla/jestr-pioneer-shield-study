@@ -115,6 +115,26 @@ class Feature {
     }
   }
 
+  pause() {
+    dataReceiver.pause();
+    if (dataReceiver.activeTabDwellTimeMonitor) {
+      dataReceiver.activeTabDwellTimeMonitor.cleanup();
+    }
+    if (dataReceiver.studyPayloadPreprocessor) {
+      dataReceiver.studyPayloadPreprocessor.cleanup();
+    }
+  }
+
+  resume() {
+    dataReceiver.resume();
+    if (dataReceiver.activeTabDwellTimeMonitor) {
+      dataReceiver.activeTabDwellTimeMonitor.run();
+    }
+    if (dataReceiver.studyPayloadPreprocessor) {
+      dataReceiver.studyPayloadPreprocessor.run();
+    }
+  }
+
   /**
    * Called at end of study, and if the user disables the study or it gets uninstalled by other means.
    */
