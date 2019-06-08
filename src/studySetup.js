@@ -184,12 +184,17 @@ async function getStudySetup() {
     );
     studySetup.telemetry.removeTestingFlag = false;
   }
-
-  // Set testing flag on shield-study-addon pings in case the model url endpoint is overridden for testing purposes
-  const modelUrlEndPointOverride = await browser.testingOverrides.getModelUrlEndpointOverride();
-  if (modelUrlEndPointOverride !== "") {
+  const slumberStartDayOverride = await browser.testingOverrides.getSlumberStartDayOverride();
+  if (slumberStartDayOverride !== false) {
     await browser.study.logger.log(
-      `Note: The model url endpoint is overridden for testing purposes ("${modelUrlEndPointOverride}")`,
+      `Note: The slumber start day is overridden for testing purposes ("${slumberStartDayOverride}")`,
+    );
+    studySetup.telemetry.removeTestingFlag = false;
+  }
+  const slumberEndDayOverride = await browser.testingOverrides.getSlumberEndDayOverride();
+  if (slumberEndDayOverride !== false) {
+    await browser.study.logger.log(
+      `Note: The slumber end day is overridden for testing purposes ("${slumberEndDayOverride}")`,
     );
     studySetup.telemetry.removeTestingFlag = false;
   }

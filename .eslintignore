@@ -7,6 +7,9 @@ src/feature.js
 src/privileged/privacyContext/api.js
 src/privileged/privacyContext/schema.json
 src/privileged/privacyContext/stubApi.js
+src/privileged/testingOverrides/api.js
+src/privileged/testingOverrides/schema.json
+src/privileged/testingOverrides/stubApi.js
 # do not lint/format bundled util libraries
 src/privileged/study/api.js
 src/privileged/study/schema.json

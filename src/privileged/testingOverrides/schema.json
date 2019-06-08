@@ -1,0 +1,22 @@
+[
+  {
+    "namespace": "testingOverrides",
+    "description": "Accesses additional preferences used for study testing",
+    "functions": [
+      {
+        "name": "getSlumberStartDayOverride",
+        "type": "function",
+        "async": true,
+        "description": "",
+        "parameters": []
+      },
+      {
+        "name": "getSlumberEndDayOverride",
+        "type": "function",
+        "async": true,
+        "description": "",
+        "parameters": []
+      }
+    ]
+  }
+]
