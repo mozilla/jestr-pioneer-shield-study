@@ -20,15 +20,13 @@
 
 ## Study-specific endings
 
-This study has no surveys and as such has NO SPECIFIC ENDINGS.
+This study has no study-specific endings.
 
 ## `shield-study` pings (common to all shield-studies)
 
 [shield-studies-addon-utils](https://github.com/mozilla/shield-studies-addon-utils) sends the usual packets.
 
 ## `shield-study-addon` pings, specific to THIS study.
-
-No user interaction is instrumented in this study.
 
 The add-on listens to navigation, web requests, cookie modifications and access to certain javascript API:s, as determined by [openwpm-webext-instrumentation](https://github.com/mozilla/openwpm-webext-instrumentation/tree/enhancements-batch-2) ([PR](https://github.com/mozilla/openwpm-webext-instrumentation/pull/31)), using the following configuration:
 
