@@ -34,7 +34,7 @@
 
 let studyLengthInDays;
 const defaultSlumberStartDay = 7;
-const defaultSlumberEndDay = 14;
+const defaultSlumberEndDay = 21;
 
 class StudyLifeCycleHandler {
   /**
