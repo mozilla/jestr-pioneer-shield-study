@@ -84,7 +84,7 @@ No user interface elements are modified in this study.
 - Install the add-on as per above
 - Verify that the study runs
 - Quit Firefox
-- Adjust the system clock so that the study is just about to have run for 21 days
+- Adjust the system clock so that the study is just about to have run for 14 days
 - Start Firefox
 - Verify that the study runs
 - Verify that the study add-on log out includes "We have entered the slumber period. Do not activate the study but schedule the re-activation"
@@ -102,7 +102,7 @@ No user interface elements are modified in this study.
 - Install the add-on as per above
 - Verify that the study runs
 - Quit Firefox
-- Adjust the system clock so that the study has run for 22 days
+- Adjust the system clock so that the study has run for 16 days
 - Start Firefox
 - Verify that the study runs
 - Verify that the study add-on log out includes "We are back after the slumber, simply activate the study and wait for study to expire"

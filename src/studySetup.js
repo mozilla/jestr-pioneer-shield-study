@@ -81,7 +81,7 @@ const baseStudySetup = {
 
   // maximum time that the study should run, from the first run
   expire: {
-    days: 7+14+2,
+    days: 7 * 3, // 3 weeks
   },
 };
 
