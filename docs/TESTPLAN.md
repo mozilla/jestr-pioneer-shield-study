@@ -110,6 +110,12 @@ No user interface elements are modified in this study.
 - Surf around
 - Verify that payloads are submitted
 
+**Not showing in `about:addons`**
+
+* Install the add-on as per above
+* Verify that the study runs
+* Verify that the study does not show up in `about:addons` (note: only signed study add-ons are hidden)
+
 ### Note: checking "sent Telemetry is correct"
 
 - Open the Browser Console using Firefox's top menu at `Tools > Web Developer > Browser Console`. This will display Shield (loading/telemetry) log output from the add-on as long as the preference `shieldStudy.logLevel` is specified, with varying output as per below: 
