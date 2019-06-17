@@ -28,7 +28,7 @@ This study has no study-specific endings.
 
 ## `shield-study-addon` pings, specific to THIS study.
 
-The add-on listens to navigation, web requests, cookie modifications and access to certain javascript API:s, as determined by [openwpm-webext-instrumentation](https://github.com/mozilla/openwpm-webext-instrumentation/tree/enhancements-batch-2) ([PR](https://github.com/mozilla/openwpm-webext-instrumentation/pull/31)), using the following configuration:
+The add-on listens to navigation, web requests, cookie modifications and access to certain javascript API:s, as determined by [openwpm-webext-instrumentation](https://github.com/mozilla/openwpm-webext-instrumentation/tree/0.3.0), using the following configuration:
 
 ```
   navigation_instrument: true,
@@ -40,7 +40,7 @@ The add-on listens to navigation, web requests, cookie modifications and access 
   strip_data_url_data: true,
 ```
 
-The packets received from the instrumentation are in turn encapsulated in objects of type [`StudyTelemetryPacket`](../feature.js/StudyPayloadPreprocessor.ts), stringified as [`StringifiedStudyTelemetryPacket`](https://github.com/motin/jestr-pioneer-shield-study/blob/master/feature.js/TelemetrySender.ts#L31) and then sent as encrypted telemetry packages using the `shield-study-addon` telemetry envelope defined by [shield-studies-addon-utils](https://github.com/mozilla/shield-studies-addon-utils) 5.2.0 ([PR](https://github.com/mozilla/shield-studies-addon-utils/pull/263)).
+The packets received from the instrumentation are in turn encapsulated in objects of type [`StudyTelemetryPacket`](../feature.js/StudyPayloadPreprocessor.ts), stringified as [`StringifiedStudyTelemetryPacket`](https://github.com/motin/jestr-pioneer-shield-study/blob/master/feature.js/TelemetrySender.ts#L31) and then sent as encrypted telemetry packages using the `shield-study-addon` telemetry envelope defined by [shield-studies-addon-utils](https://github.com/mozilla/shield-studies-addon-utils) 5.3.0.
 
 Currently, the best way to introspect the internals of `StudyTelemetryPacket` is to follow the Typescript definitions in [StudyPayloadPreprocessor.ts](https://github.com/motin/jestr-pioneer-shield-study/blob/master/feature.js/StudyPayloadPreprocessor.ts).
 
