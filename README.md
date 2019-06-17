@@ -21,4 +21,5 @@ See [DEV.md](./docs/DEV.md) for more details on how to work with this add-on as 
 
 ## History
 
+- Experiment v1 relaunch: [launch bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1559430) - [Experimenter entry](https://experimenter.services.mozilla.com/experiments/jestr-relaunch-identifying-web-browsing-patterns-in-the-pioneer-population/)
 - Experiment v1: [launch bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1496154) - [phd](https://docs.google.com/document/d/10JEZ9WgAqqsveYGMgSs8xJMPxQoSExAXx5pf_Fya3sY/edit) - [code](https://github.com/motin/jestr-pioneer-shield-study)
