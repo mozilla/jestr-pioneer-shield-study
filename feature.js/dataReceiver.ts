@@ -21,7 +21,7 @@ declare namespace browser.study {
 }
 
 declare namespace browser.privacyContext {
-  function aPrivateBrowserWindowIsOpen(): boolean;
+  function aPrivateBrowserWindowIsOpen(): Promise<boolean>;
 }
 
 export interface LogEntry {

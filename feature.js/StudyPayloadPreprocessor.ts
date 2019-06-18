@@ -39,7 +39,7 @@ declare namespace browser.runtime {
 }
 
 declare namespace browser.privacyContext {
-  function aPrivateBrowserWindowIsOpen(): boolean;
+  function aPrivateBrowserWindowIsOpen(): Promise<boolean>;
 }
 
 export interface NavigationBatch {

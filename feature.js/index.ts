@@ -9,12 +9,12 @@ declare namespace browser.study {
 }
 
 declare namespace browser.studyDebug {
-  function getInternals(): any;
+  function getInternals(): Promise<any>;
 }
 
 declare namespace browser.privacyContext {
-  function permanentPrivateBrowsing(): boolean;
-  function aPrivateBrowserWindowIsOpen(): boolean;
+  function permanentPrivateBrowsing(): Promise<boolean>;
+  function aPrivateBrowserWindowIsOpen(): Promise<boolean>;
 }
 
 declare namespace browser.downloads {
