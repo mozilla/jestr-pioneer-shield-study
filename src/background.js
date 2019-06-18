@@ -92,7 +92,9 @@ class StudyLifeCycleHandler {
     // when it is supposed to
     const theStudyExpiresInThisManyMinutes = delayInMinutes;
     if (theStudyExpiresInThisManyMinutes !== undefined) {
-      await browser.study.logger.log(`Scheduling study expiration in ${delayInMinutes/24/60} days`);
+      await browser.study.logger.log(
+        `Scheduling study expiration in ${delayInMinutes / 24 / 60} days`,
+      );
       const alarmName = this.expirationAlarmName;
       const alarmListener = async alarm => {
         if (alarm.name === alarmName) {
@@ -167,7 +169,9 @@ class StudyLifeCycleHandler {
   async scheduleSlumberStart(delayInMinutes) {
     const alarmName = this.slumberStartAlarmName;
     await browser.study.logger.log(
-      `Scheduling mid-study slumber to start in ${delayInMinutes} minutes (${delayInMinutes/24/60} days)`,
+      `Scheduling mid-study slumber to start in ${delayInMinutes} minutes (${delayInMinutes /
+        24 /
+        60} days)`,
     );
     const alarmListener = async alarm => {
       if (alarm.name === alarmName) {
@@ -199,7 +203,9 @@ class StudyLifeCycleHandler {
   async scheduleSlumberStop(delayInMinutes) {
     const alarmName = this.slumberStopAlarmName;
     await browser.study.logger.log(
-      `Scheduling mid-study slumber to stop in ${delayInMinutes} minutes (${delayInMinutes/24/60} days)`,
+      `Scheduling mid-study slumber to stop in ${delayInMinutes} minutes (${delayInMinutes /
+        24 /
+        60} days)`,
     );
     const alarmListener = async alarm => {
       if (alarm.name === alarmName) {

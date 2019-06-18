@@ -112,13 +112,13 @@ No user interface elements are modified in this study.
 
 **Not showing in `about:addons`**
 
-* Install the add-on as per above
-* Verify that the study runs
-* Verify that the study does not show up in `about:addons` (note: only signed study add-ons are hidden)
+- Install the add-on as per above
+- Verify that the study runs
+- Verify that the study does not show up in `about:addons` (note: only signed study add-ons are hidden)
 
 ### Note: checking "sent Telemetry is correct"
 
-- Open the Browser Console using Firefox's top menu at `Tools > Web Developer > Browser Console`. This will display Shield (loading/telemetry) log output from the add-on as long as the preference `shieldStudy.logLevel` is specified, with varying output as per below: 
+- Open the Browser Console using Firefox's top menu at `Tools > Web Developer > Browser Console`. This will display Shield (loading/telemetry) log output from the add-on as long as the preference `shieldStudy.logLevel` is specified, with varying output as per below:
   - To get an idea of how often telemetry is sent and their calculated ping sizes, set `shieldStudy.logLevel` to `log`. This permits log-level shield-add-on log output in the browser console which includes high-level log messages regarding sent telemetry payloads.
   - To get an idea of how often [OpenWPM](https://github.com/mozilla/openwpm-webext-instrumentation) instruments a JS/HTTP/COOKIE event, set `shieldStudy.logLevel` to `info`. This permits info-level shield-add-on log output in the browser console which includes high-level log messages regarding received OpenWPM packages.
   - To inspect the unencrypted contents individual telemetry packets, set `shieldStudy.logLevel` to `all`. This permits debug-level shield-add-on log output in the browser console. Note that this will negatively affect the performance of Firefox.
