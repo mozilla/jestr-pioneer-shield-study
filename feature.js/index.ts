@@ -42,10 +42,11 @@ class Feature {
     const feature = this;
     const { isFirstRun } = studyInfo;
 
-    // Users with private browsing on autostart should not continue being in the study
-    if (await browser.privacyContext.permanentPrivateBrowsing()) {
-      await browser.study.logger.log(
-        "Permanent private browsing, exiting study",
+    // We want to make sure that we don't continue this particular
+    // study if the user is no longer eligible after a browser restart
+    if (!(await isCurrentlyEligible({ studyType: "pioneer" }))) {
+      await browser.study.logger.info(
+        "User is currently ineligible for this study any longer, ending study",
       );
       await browser.study.endStudy({ reason: "ineligible" });
       return;
