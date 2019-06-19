@@ -131,16 +131,15 @@ class StudyLifeCycleHandler {
       { slumberStartDay, slumberStartMinute, slumberEndDay, slumberEndMinute },
     ]);
 
+    await feature.configure(studyInfo);
     if (studyDurationInMinutesSoFar > slumberEndMinute) {
       await browser.study.logger.log(
         "We are back after the slumber, simply activate the study and wait for study to expire",
       );
-      await feature.configure(studyInfo);
     } else if (studyDurationInMinutesSoFar > slumberStartMinute) {
       await browser.study.logger.log(
-        "We have entered the slumber period. Do not activate the study but schedule the re-activation",
+        "We have entered the slumber period. Pause the study and schedule the re-activation",
       );
-      await feature.configure(studyInfo);
       await feature.pause();
       await this.scheduleSlumberStop(
         slumberEndMinute - studyDurationInMinutesSoFar,
@@ -149,7 +148,6 @@ class StudyLifeCycleHandler {
       await browser.study.logger.log(
         "We have not yet entered the slumber period. Activate the study and schedule the slumber",
       );
-      await feature.configure(studyInfo);
       await this.scheduleSlumberStart(
         slumberStartMinute - studyDurationInMinutesSoFar,
       );
