@@ -86,20 +86,27 @@ const baseStudySetup = {
 };
 
 async function isCurrentlyEligible(studySetup) {
-  let allowed;
   const dataPermissions = await browser.study.getDataPermissions();
-  if (studySetup.studyType === "shield") {
-    allowed = dataPermissions.shield;
+  if (!dataPermissions.shield) {
+    await browser.study.logger.info(
+      "Studies not allowed",
+    );
+    return false;
   }
-  if (studySetup.studyType === "pioneer") {
-    allowed = dataPermissions.pioneer;
+  if (studySetup.studyType === "pioneer" && !dataPermissions.pioneer) {
+    await browser.study.logger.info(
+      "Pioneer opt-in not active",
+    );
+    return false;
   }
   // Users with private browsing on autostart are not eligible
   if (await browser.privacyContext.permanentPrivateBrowsing()) {
-    await browser.study.logger.log("Permanent private browsing, exiting study");
-    allowed = false;
+    await browser.study.logger.info(
+      "Permanent private browsing, not allowing enroll",
+    );
+    return false;
   }
-  return allowed;
+  return true;
 }
 
 /**
@@ -118,13 +125,12 @@ async function isCurrentlyEligible(studySetup) {
  * @returns {Promise<boolean>} answer An boolean answer about whether the user should be
  *       allowed to enroll in the study
  */
-/*
 async function wasEligibleAtFirstRun(studySetup) {
-  // Cached answer.  Used on 2nd run
-  const localStorageResult = await browser.storage.local.get(
+  // Cached answer. Used on 2nd run
+  const { allowedEnrollOnFirstRun } = await browser.storage.local.get(
     "allowedEnrollOnFirstRun",
   );
-  if (localStorageResult.allowedEnrollOnFirstRun === true) return true;
+  if (allowedEnrollOnFirstRun === true) return true;
 
   // First run, we must calculate the answer.
   // If false, the study will endStudy with 'ineligible' during `setup`
@@ -134,7 +140,6 @@ async function wasEligibleAtFirstRun(studySetup) {
   await browser.storage.local.set({ allowedEnrollOnFirstRun: allowed });
   return allowed;
 }
-*/
 
 /**
  * Augment declarative studySetup with any necessary async values
@@ -145,11 +150,7 @@ async function getStudySetup() {
   // shallow copy
   const studySetup = Object.assign({}, baseStudySetup);
 
-  // Since our eligibility criterias are not dependent on the state of the first run only
-  // but rather should be checked on every browser launch, we skip the use
-  // of wasEligibleAtFirstRun
-  // studySetup.allowEnroll = await wasEligibleAtFirstRun(studySetup);
-  studySetup.allowEnroll = await isCurrentlyEligible(studySetup);
+  studySetup.allowEnroll = await wasEligibleAtFirstRun(studySetup);
 
   const testingOverrides = await browser.study.getTestingOverrides();
   studySetup.testing = {
