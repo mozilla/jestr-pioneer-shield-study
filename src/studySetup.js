@@ -87,16 +87,13 @@ const baseStudySetup = {
 
 async function isCurrentlyEligible(studySetup) {
   const dataPermissions = await browser.study.getDataPermissions();
+  // Need to allow studies in general
   if (!dataPermissions.shield) {
-    await browser.study.logger.info(
-      "Studies not allowed",
-    );
+    await browser.study.logger.info("Studies not allowed");
     return false;
   }
   if (studySetup.studyType === "pioneer" && !dataPermissions.pioneer) {
-    await browser.study.logger.info(
-      "Pioneer opt-in not active",
-    );
+    await browser.study.logger.info("Pioneer opt-in not active");
     return false;
   }
   // Users with private browsing on autostart are not eligible
