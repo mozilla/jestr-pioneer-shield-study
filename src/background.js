@@ -140,6 +140,8 @@ class StudyLifeCycleHandler {
       await browser.study.logger.log(
         "We have entered the slumber period. Do not activate the study but schedule the re-activation",
       );
+      await feature.configure(studyInfo);
+      await feature.pause();
       await this.scheduleSlumberStop(
         slumberEndMinute - studyDurationInMinutesSoFar,
       );

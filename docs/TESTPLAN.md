@@ -88,6 +88,7 @@ No user interface elements are modified in this study.
 - Start Firefox
 - Verify that the study runs
 - Verify that the study add-on log out includes "We have entered the slumber period. Do not activate the study but schedule the re-activation"
+- (At this point, the instrumentation may be activated for a split second and then immediately paused)
 - Surf around
 - Verify that no payloads are submitted
 - Verify that the study add-on log out does not include "Scheduling mid-study slumber to start in # minutes"
