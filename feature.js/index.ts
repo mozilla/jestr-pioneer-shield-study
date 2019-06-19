@@ -48,7 +48,7 @@ class Feature {
       await browser.study.logger.info(
         "User is currently ineligible for this study any longer, ending study",
       );
-      await browser.study.endStudy({ reason: "ineligible" });
+      browser.study.endStudy({ reason: "ineligible" });
       return;
     }
 
