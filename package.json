@@ -1,7 +1,7 @@
 {
   "name": "jestr-pioneer-shield-study",
   "description": "JESTr Pioneer Shield Study",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "author": "Fredrik Wollsén <fwollsen@mozilla.org>",
   "bugs": {
     "url": "https://github.com/mozilla/shield-studies-addon-template/issues"
