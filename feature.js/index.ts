@@ -48,8 +48,7 @@ class Feature {
       await browser.study.logger.info(
         "User is currently ineligible for this study any longer, ending study",
       );
-      browser.study.endStudy({ reason: "ineligible" });
-      return;
+      return browser.study.endStudy("ineligible");
     }
 
     // Start OpenWPM instrumentation
